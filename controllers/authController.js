@@ -33,7 +33,7 @@ module.exports.signup = async (req, res) => {
     }
     // Creating an email template with the random otp
     let x = Math.floor(100000 + Math.random() * 900000);
-    let VerificationLink = `http://localhost:3000/verify?email=${req.body.email}&token=${x}`;
+    let VerificationLink = `https://bharatchat.onrender.com/verify?email=${req.body.email}&token=${x}`;
     const emailHTML = `
            <html>
            <body>
