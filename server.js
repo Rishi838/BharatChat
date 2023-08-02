@@ -10,7 +10,7 @@ const app = express()
 
 // settng up properties of server
 app.set("view engine", "ejs")
-app.set("views", path.join("./Frontend/views"))
+app.set("views", path.join("./frontend/views"))
 app.use(express.static(path.join(__dirname)));
 app.use(express.json())
 

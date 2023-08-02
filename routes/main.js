@@ -26,7 +26,7 @@ module.exports.SetUpSocketIo = (io) => {
     })
   })
   io.on("connection", (socket) => {
-    
+    console.log(socket.request.user)
     socket.on("message", (message) => {
       console.log(message);
     });
