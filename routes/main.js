@@ -40,18 +40,15 @@ module.exports.SetUpSocketIo = (io) => {
       await activeUsers.create({ user: userId, socket: socket.id });
     // Handling personal chats
     // Below function is used to  deal when user sends a personal message to another user
-    socket.on("personal-chat", (data)=>{
+    socket.on("send-personal-message", (data)=>{
       // Read the message sent, store it in database , if user is online send it to the user immediately
-      chatController.personalChat(io,userId,data)
+      chatController.SendPersonalMessage(io,userId,data)
     });
     // when a user reads a message in the chat, his messages in the chat are mark as read ans is acknowledged on server side by below functions
-    socket.on("read-personal-msg",(data)=>{
+    socket.on("read-personal-message",(data)=>{
+      chatController.ReadPersonalMessage(io,userId,data)
     })
     // All Connections for personal chat Ends Here
-    // Now Doing self chats
-    socket.on("self-chat",(data)=>{
-      chatController.selfChat(userId,data)
-    })
     // Handling event when user disonnect like deleting it from active database
     socket.on("disconnect", async () => {
       await activeUsers.deleteOne({ user: userId });
