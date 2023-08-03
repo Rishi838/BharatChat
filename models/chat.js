@@ -14,7 +14,11 @@ mongoose
 const messageSchema = new mongoose.Schema({
     Sender: { type: String, required: true },
     Content: { type: String, required: true },
-    Unread : [{type: String}],
+    ReadStatus : {
+      type: Map,
+      of: Boolean,
+      default :new Map()
+    },
     Timestamp: { type: Date, default: Date.now }
    
   });
@@ -25,7 +29,14 @@ const chatschema = new mongoose.Schema({
      required:true,
      enum: ["Self","Personal","Group"]
     },
-    Participants: [{ type: String, required: true }],
+    Participants: {
+      type: Map,
+      of: {
+        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        UnreadMessages: { type: Number, default: 0 },
+      },
+      default: new Map(),
+    },
     Messages: [messageSchema], // Each message in the array follows the messageSchema
     LastChat: { type: Date, default: Date.now },
 });
