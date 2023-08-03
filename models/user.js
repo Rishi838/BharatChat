@@ -38,11 +38,6 @@ const userschema = new mongoose.Schema({
   ExpiresAt: {
     type: Date,
     required: true,
-  },
-  Status: {
-    type: String,
-    enum : ["online","typing","offline"],
-    default: "offline"
   }
 });
 const collection = new mongoose.model("Users", userschema);

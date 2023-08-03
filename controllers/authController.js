@@ -64,7 +64,6 @@ module.exports.signup = async (req, res) => {
       subject: "Authorization for ShopNet",
       html: emailHTML,
     };
-    console.log("Mail Details Made");
     mailTransporter.sendMail(mailDetails, function (err, data) {
       if (err) {
         console.log("Some error occured", err);
@@ -160,7 +159,6 @@ module.exports.verify = async (req, res) => {
       { email: req.query.email },
       process.env.REFRESH_TOKEN_PRIVATE_KEY
     );
-    user.RefreshToken = refresh_token;
     await user.save();
     res.cookie("refresh_token", refresh_token, {
       // secure: true,

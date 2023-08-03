@@ -14,7 +14,9 @@ mongoose
 const messageSchema = new mongoose.Schema({
     Sender: { type: String, required: true },
     Content: { type: String, required: true },
-    Timestamp: { type: Date, default: Date.now },
+    Unread : [{type: String}],
+    Timestamp: { type: Date, default: Date.now }
+   
   });
 //Creating a new schema
 const chatschema = new mongoose.Schema({
@@ -25,7 +27,7 @@ const chatschema = new mongoose.Schema({
     },
     Participants: [{ type: String, required: true }],
     Messages: [messageSchema], // Each message in the array follows the messageSchema
-    CreatedAt: { type: Date, default: Date.now },
+    LastChat: { type: Date, default: Date.now },
 });
 const collection = new mongoose.model("Chats", chatschema);
 module.exports = collection;
