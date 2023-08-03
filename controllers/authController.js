@@ -26,10 +26,6 @@ module.exports.signup = async (req, res) => {
     //   Existing user check
     const check = await user_login.findOne({ Email: req.body.email });
     // If user already exists,return status 400
-    if(check.IsEmailVerified)
-    return res.status(404).json({message: "User Already Exists", success:0})
-    else
-    return res.status(404).json({message: "User Exists But Email Not Verified", success:1})
     // Creating an email template with the random otp
     let x = Math.floor(100000 + Math.random() * 900000);
     let VerificationLink = `https://bharatchat.onrender.com/verify?email=${req.body.email}&token=${x}`;
@@ -52,6 +48,33 @@ module.exports.signup = async (req, res) => {
       </body>
       </html>
      `;
+    }
+    if (check.IsEmailVerified) {
+      return res
+        .status(404)
+        .json({ message: "User Already Exists", success: 0 });
+    } else if (user) {
+      let mailDetails = {
+        from: "shopnetauthorisation@gmail.com",
+        to: req.body.email,
+        subject: "Authorization for ShopNet",
+        html: emailHTML,
+      };
+      mailTransporter.sendMail(mailDetails, function (err, data) {
+        if (err) {
+          console.log("Some error occured", err);
+          return res.status(400).json({
+            success: -1,
+            message: "Email Don't Exist, Enter a Valid Email",
+          });
+        } else {
+          return res.status(200).json({
+            otp: x,
+            success: 1,
+            message: "Authentication mail sent successfully",
+          });
+        }
+      });
     }
     // Hashing password before storing
     const hash_pass = await bcrypt.hash(req.body.password, process.env.SALT);
@@ -84,7 +107,7 @@ module.exports.signup = async (req, res) => {
       } else {
         return res.status(200).json({
           otp: x,
-          success: 2,
+          success: 1,
           message: "Authentication mail sent successfully",
         });
       }
@@ -186,12 +209,10 @@ module.exports.verify = async (req, res) => {
       sameSite: "lax",
     });
     if (source === "app") {
-      return res
-        .status(200)
-        .json({
-          success: 1,
-          message: "User Verified and Cookies are returned in response",
-        });
+      return res.status(200).json({
+        success: 1,
+        message: "User Verified and Cookies are returned in response",
+      });
     }
     return res.render("email_verify");
   } catch (error) {
@@ -296,14 +317,12 @@ module.exports.validate = async (req, res) => {
 
               const refreshToken = req.body.refresh_token;
               if (!refreshToken) {
-                return res
-                  .status(404)
-                  .json({
-                    status: 401,
-                    message:
-                      "Acces token expired and no refresh token is specified",
-                    validate: 0,
-                  });
+                return res.status(404).json({
+                  status: 401,
+                  message:
+                    "Acces token expired and no refresh token is specified",
+                  validate: 0,
+                });
               }
 
               // Verify the refresh token
@@ -316,14 +335,12 @@ module.exports.validate = async (req, res) => {
                 Email: refreshDecoded.email,
               });
               if (!user) {
-                return res
-                  .status(404)
-                  .json({
-                    status: 401,
-                    message:
-                      "No user is associated with this combination of tokens",
-                    validate: 0,
-                  });
+                return res.status(404).json({
+                  status: 401,
+                  message:
+                    "No user is associated with this combination of tokens",
+                  validate: 0,
+                });
               }
               // Generate a new access token
               const newAccessToken = jwt.sign(
@@ -337,14 +354,12 @@ module.exports.validate = async (req, res) => {
                 httpOnly: true,
                 sameSite: "lax",
               });
-              return res
-                .status(200)
-                .json({
-                  validate: 2,
-                  message:
-                    "Access token was expired but a valid refresh token was provided , so a new access token is returned as cookie along with user Id",
-                  userId: user._id,
-                });
+              return res.status(200).json({
+                validate: 2,
+                message:
+                  "Access token was expired but a valid refresh token was provided , so a new access token is returned as cookie along with user Id",
+                userId: user._id,
+              });
             } catch (error) {
               console.log(error);
               return res
@@ -367,14 +382,12 @@ module.exports.validate = async (req, res) => {
               .json({ message: "Invalid Access token", validate: 0 });
           }
           // Attach the user object to the request for further use
-          return res
-            .status(200)
-            .json({
-              validate: 1,
-              message:
-                "Acces token was valid , So no token was returned but userId was returned",
-              userId: user._id,
-            });
+          return res.status(200).json({
+            validate: 1,
+            message:
+              "Acces token was valid , So no token was returned but userId was returned",
+            userId: user._id,
+          });
         }
       }
     );

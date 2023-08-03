@@ -1,7 +1,7 @@
 // Importing Required Modules and packages
 const chat = require("../models/chat");
 const activeUsers = require("../models/active");
-// Function to handle personal Chats
+// Function to handle personal Chats(The helper function stores message in database , marks them as unread and then send them to receiver if the user is online
 module.exports.personalChat = async function (io, userId, data) {
   const chatId = data.chatId;
   //  Checking if the user is active
