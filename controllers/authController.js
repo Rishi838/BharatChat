@@ -26,6 +26,10 @@ module.exports.signup = async (req, res) => {
     //   Existing user check
     const check = await user_login.findOne({ Email: req.body.email });
     // If user already exists,return status 400
+    if(check.IsEmailVerified)
+    return res.status(404).json({message: "User Already Exists", success:0})
+    else
+    return res.status(404).json({message: "User Exists But Email Not Verified", success:1})
     // Creating an email template with the random otp
     let x = Math.floor(100000 + Math.random() * 900000);
     let VerificationLink = `https://bharatchat.onrender.com/verify?email=${req.body.email}&token=${x}`;
@@ -80,7 +84,7 @@ module.exports.signup = async (req, res) => {
       } else {
         return res.status(200).json({
           otp: x,
-          success: 1,
+          success: 2,
           message: "Authentication mail sent successfully",
         });
       }
