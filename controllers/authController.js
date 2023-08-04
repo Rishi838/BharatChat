@@ -295,14 +295,13 @@ module.exports.resend = async (req, res) => {
         res.status(400).json({ success: -1, message: "Email Dont Exist" });
       } else {
         res.status(200).json({
-          otp: x,
           success: 1,
           message: "Verification Link Sent Succesfully",
         });
       }
     });
   } catch (error) {
-    res.status(400).json({ success: 1, message: "Server Error" });
+    res.status(400).json({ success: -1, message: "Server Error" });
   }
 };
 // Controller to validate user from android app(do not use it from the browser for security reasons)
