@@ -145,6 +145,10 @@ module.exports.login = async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: 0, message: "NO Such User" });
     }
+    if(user.IsEmailVerified == false)
+    {
+      return res.status(404).json({ success: -2, message: "Account Exist but Email not verified" });
+    }
     // Cheking Password is correct or not
     const compare_pass = await bcrypt.compare(req.body.password, user.Password);
     if (!compare_pass) {

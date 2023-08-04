@@ -26,7 +26,7 @@ Socket.on("receive-personal-message",(data)=>{
 // Receiving acknowledgment when any of my sent messaged becomed read, when user is active
 Socket.on("read-message-ack",(data)=>{
    // Accessing things sent like chatId and sender Id(Who read the message)
-   const {ChatId, Sender} = data
+   console.log("Acknowledgment received",data)
 })
 // Sending message to the user, nit adding event listner, using refernce variable for it as of now
 const sendMsg = true
@@ -41,6 +41,8 @@ const chatRead = true;
 if(chatRead)
 {
    // When user reads the unread chat this emit command is used to send acknowledgement to server that the all the messages in the server are now read by this user
-   read_chat("Chat" ,"Sender" )
+   // read_chat("Chat" ,"Sender" )
 }
-
+ Socket.on("test",(data)=>{
+   console.log("Data Received Successfully")
+ })
