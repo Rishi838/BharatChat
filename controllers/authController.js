@@ -290,6 +290,7 @@ module.exports.resend = async (req, res) => {
     expirationTime.setSeconds(expirationTime.getSeconds() + 600);
     user.EmailToken = x;
     user.ExpiresAt = expirationTime;
+    await user.save()
     mailTransporter.sendMail(mailDetails, function (err, data) {
       if (err) {
         res.status(400).json({ success: -1, message: "Email Dont Exist" });

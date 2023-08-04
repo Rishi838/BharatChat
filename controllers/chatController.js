@@ -57,7 +57,7 @@ module.exports.SendPersonalMessage = async function (io, userId, data) {
   if (receiver) {
     // Receive-personal-message event will be transmitted to receiver with the senderId and chatId and the messafe Receievd
     console.log("Sendign message to receiver", receiver.socket)
-    io.to(receiver.socket).emit("receive-personal-message", {
+    io.to("TxFLHBTMsNRyCM0TAAAF").emit("receive-personal-message", {
       ChatId : chatId,
       Sender : userId,
       Content: data.Content,

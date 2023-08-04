@@ -33,17 +33,19 @@ module.exports.SetUpSocketIo = (io) => {
   });
   io.on("connection", async (socket) => {
     // Handle Communication after logic is made
-    const userId = socket.request.user._id;
+    const userId = socket.request.user._id;  
+    console.log(userId) 
     // Marking the user active in active user database
     const already_exits = await activeUsers.findOne({ user: userId });
+    console.log(already_exits)
     if (!already_exits)
       await activeUsers.create({ user: userId, socket: socket.id });
     // Handling personal chats
     // Below function is used to  deal when user sends a personal message to another user
-    socket.on("send-personal-message", (data)=>{
+    socket.on("send-personal-message",async (data)=>{
       // Read the message sent, store it in database , if user is online send it to the user immediately
       console.log("Here")
-      chatController.SendPersonalMessage(io,userId,data)
+      await chatController.SendPersonalMessage(io,userId,data)
     });
     // when a user reads a message in the chat, his messages in the chat are mark as read ans is acknowledged on server side by below functions
     socket.on("read-personal-message",async (data)=>{
