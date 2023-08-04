@@ -47,23 +47,15 @@ export async function login_listner() {
       console.log(resp)
       if (resp.success == -1) {
         document.getElementById("login_credentials_error").innerText =
-          "*Valid Credentials Not Provided";
+          "*Server Error";
         return;
       } else if (resp.success == 0) {
         document.getElementById("login_credentials_error").innerText =
-          "*No user with this email exist";
+          "*Enter Valid Password and Email";
         return;
       } else if (resp.success == 1) {
-        document.getElementById("login_credentials_error").innerText =
-          "*PassWord Incorrect";
-        return;
-      } else if (resp.success == 3) {
-        document.getElementById("login_credentials_error").innerText =
-          "Email Incorrect";
-        return;
-      } else {
-        location.href = "/";
-      }
+       location.href = '/'
+      } 
     }
   }
 }
@@ -142,16 +134,13 @@ export async function signup_listner() {
       document.getElementById("signup_email_error").innerText = "";
       if (res.success == 0) {
         document.getElementById("signup_credentials_error").innerText =
-          "*User Already Exists";
+          "*User Already Exists with this email";
         return;
       } else if (res.success == -1) {
         document.getElementById("signup_credentials_error").innerText =
-          "*Some Error Occured, Check Your Credentials";
+          "*Some Error Occured, Check Your Credentials or Server Error";
         return;
       } else if (res.success == 1) {
-        document.getElementById("signup_pass_error").innerText = "";
-        document.getElementById("signup_name_error").innerText = "";
-        document.getElementById("signup_email_error").innerText = "";
         document.getElementById("signup_credentials_error").innerText =
           "An email has been sent to your mail with verification mail, It will be valid for 10 min only";
         document.getElementById("signup_credentials_error").style.color =

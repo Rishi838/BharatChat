@@ -42,6 +42,7 @@ module.exports.SetUpSocketIo = (io) => {
     // Below function is used to  deal when user sends a personal message to another user
     socket.on("send-personal-message", (data)=>{
       // Read the message sent, store it in database , if user is online send it to the user immediately
+      console.log("Here")
       chatController.SendPersonalMessage(io,userId,data)
     });
     // when a user reads a message in the chat, his messages in the chat are mark as read ans is acknowledged on server side by below functions

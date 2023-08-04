@@ -2,6 +2,7 @@ const  Socket  = io('http://localhost:3000')
 
 //Helper function to send a personal message
 async function send_personal_message (Chat,Receiver,Content){
+   console.log("Emitting")
    Socket.emit("send-personal-message",{
       ChatId : Chat,
       Receiver : Receiver,
@@ -30,6 +31,7 @@ Socket.on("read-message-ack",(data)=>{
 const sendMsg = true
 if(sendMsg){
    // When User Sends a message attach the corresponding chat Id , receiver Id, and message to be sent
+   console.log("Executing Personal Message")
    send_personal_message("New Chat","64cbf5687bd3a64f90d87839","Yo, Guys I Am sending this message")
 }
 

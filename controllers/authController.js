@@ -25,6 +25,7 @@ module.exports.signup = async (req, res) => {
         .json({ success: -1, message: "Enter All credentials properly" });
     //   Existing user check
     const check = await user_login.findOne({ Email: req.body.email });
+    console.log(check)
     // If user already exists,return status 400
     // Creating an email template with the random otp
     let x = Math.floor(100000 + Math.random() * 900000);
@@ -49,11 +50,7 @@ module.exports.signup = async (req, res) => {
       </html>
      `;
     }
-    if (check.IsEmailVerified) {
-      return res
-        .status(404)
-        .json({ message: "User Already Exists", success: 0 });
-    } else if (user) {
+    if (check) {
       let mailDetails = {
         from: "shopnetauthorisation@gmail.com",
         to: req.body.email,
@@ -75,6 +72,11 @@ module.exports.signup = async (req, res) => {
           });
         }
       });
+    }
+    else if (check && check.IsEmailVerified) {
+      return res
+        .status(404)
+        .json({ message: "User Already Exists", success: 0 });
     }
     // Hashing password before storing
     const hash_pass = await bcrypt.hash(req.body.password, process.env.SALT);
@@ -125,6 +127,7 @@ module.exports.login = async (req, res) => {
       return res.status(404).json({ success: -1, msg: "Bad request" });
     //   Existing user check
     const user = await user_login.findOne({ Email: req.body.email });
+    console.log(user)
     if (!user) {
       return res.status(404).json({ success: 0, message: "NO Such User" });
     }
