@@ -51,6 +51,7 @@ module.exports.signup = async (req, res) => {
      `;
     }
     if (check && check.IsEmailVerified == false) {
+      console.log("UserExist but is not verified")
       let mailDetails = {
         from: "shopnetauthorisation@gmail.com",
         to: req.body.email,
@@ -66,18 +67,30 @@ module.exports.signup = async (req, res) => {
           });
         } else {
           return res.status(200).json({
-            otp: x,
             success: 1,
-            message: "Authentication mail sent successfully",
+            message: "Authentication mail sent successfully again to the user",
           });
         }
       });
+      console.log("Mail Sent")
+      // Update User Details
+      check.EmailToken = x;
+      const expirationTime = new Date();
+      expirationTime.setSeconds(expirationTime.getSeconds() + 600);
+      check.ExpiresAt = expirationTime
+      const hash_pass = await bcrypt.hash(req.body.password, process.env.SALT);
+      check.Password = hash_pass
+      console.log("Details Saved")
+      await check.save()
     }
     else if (check && check.IsEmailVerified) {
+      console.log("user already exists")
       return res
         .status(404)
         .json({ message: "User Already Exists", success: 0 });
     }
+    else{
+      console.log("Creating new user")
     // Hashing password before storing
     const hash_pass = await bcrypt.hash(req.body.password, process.env.SALT);
     // Setting expiration time for OTP
@@ -91,7 +104,7 @@ module.exports.signup = async (req, res) => {
       EmailToken: x,
       ExpiresAt: expirationTime,
     });
-
+    console.log("User Created")
     // Sending Verificaion Email
     let mailDetails = {
       from: "shopnetauthorisation@gmail.com",
@@ -108,12 +121,13 @@ module.exports.signup = async (req, res) => {
         });
       } else {
         return res.status(200).json({
-          otp: x,
           success: 1,
           message: "Authentication mail sent successfully",
         });
       }
     });
+    console.log("Mail Sent")
+  }
   } catch (error) {
     console.log(error);
     return res.status(400).json({ success: -1, message: "Email Dont Exist" });
