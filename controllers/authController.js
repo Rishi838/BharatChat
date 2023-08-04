@@ -50,7 +50,7 @@ module.exports.signup = async (req, res) => {
       </html>
      `;
     }
-    if (check) {
+    if (check && check.IsEmailVerified == false) {
       let mailDetails = {
         from: "shopnetauthorisation@gmail.com",
         to: req.body.email,

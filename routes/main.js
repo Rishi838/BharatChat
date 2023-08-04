@@ -46,8 +46,8 @@ module.exports.SetUpSocketIo = (io) => {
       chatController.SendPersonalMessage(io,userId,data)
     });
     // when a user reads a message in the chat, his messages in the chat are mark as read ans is acknowledged on server side by below functions
-    socket.on("read-personal-message",(data)=>{
-      chatController.ReadPersonalMessage(io,userId,data)
+    socket.on("read-personal-message",async (data)=>{
+      await chatController.ReadPersonalMessage(io,userId,data)
     })
     // All Connections for personal chat Ends Here
     // Handling event when user disonnect like deleting it from active database

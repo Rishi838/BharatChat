@@ -4,11 +4,11 @@ require("dotenv").config();
 mongoose
   .connect(process.env.DB)
   .then(() => {
-    console.log("Conversation Database Connected");
+    console.log("Chat Database Connected");
   })
   .catch((e) => {
     console.log(e);
-    console.log("Conversation Database Falied");
+    console.log("Chat Database Falied");
   });
 // Creating a message schema
 const messageSchema = new mongoose.Schema({
@@ -16,8 +16,7 @@ const messageSchema = new mongoose.Schema({
     Content: { type: String, required: true },
     ReadStatus : {
       type: Map,
-      of: Boolean,
-      default :new Map()
+      of: String,
     },
     Timestamp: { type: Date, default: Date.now }
    
@@ -31,11 +30,7 @@ const chatschema = new mongoose.Schema({
     },
     Participants: {
       type: Map,
-      of: {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-        UnreadMessages: { type: Number, default: 0 },
-      },
-      default: new Map(),
+      of: Number
     },
     Messages: [messageSchema], // Each message in the array follows the messageSchema
     LastChat: { type: Date, default: Date.now },
