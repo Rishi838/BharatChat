@@ -30,7 +30,7 @@ Socket.on("read-message-ack",(data)=>{
 const sendMsg = true
 if(sendMsg){
    // When User Sends a message attach the corresponding chat Id , receiver Id, and message to be sent
-   send_personal_message("Chat","Receiver","Message")
+   send_personal_message("New Chat","64cbf5687bd3a64f90d87839","Yo, Guys I Am sending this message")
 }
 
 // This part is invoked when user reads a message,just using the refrence variable to do it for now
