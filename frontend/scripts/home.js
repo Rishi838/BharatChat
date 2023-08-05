@@ -1,4 +1,4 @@
-const Socket = io("http://localhost:3000");
+const Socket = io("https://bharatchat.onrender.com");
 
 // Helper function by which we send requests to the server
 
