@@ -8,6 +8,7 @@ const verifyTokenAndRefresh = async (req, res, next) => {
   try {
     // Extract the access token from the cookies of request
     const AccessToken = req.cookies.access_token;
+    console.log(AccessToken)
     // Check if the token is provided or not
     if (!AccessToken) {
       return next({ status: 401, message: "Access token not found." , validate:0 });
