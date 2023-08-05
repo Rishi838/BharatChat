@@ -12,9 +12,11 @@ module.exports.SetUpSocketIo = (io) => {
   // Middleware to authenticate only valid requests
 
   io.use(async (socket, next) => {
+    console.log(socket)
     console.log(socket.handshake.headers.cookie,socket.id,socket.query)
     const cookies = cookie.parse(socket.handshake.headers.cookie || "");
     const queryParameters = socket.handshake.query;
+    console.log(queryParameters)
     const key1Value = queryParameters.key1;
   const key2Value = queryParameters.key2;
   console.log(key1Value,key2Value)
