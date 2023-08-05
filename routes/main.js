@@ -41,7 +41,7 @@ module.exports.SetUpSocketIo = (io) => {
 
     // Handle Communication after logic is made
     const userId = socket.request.user._id;   
-
+    console.log(userId)
 
     // Marking the user active in active user database
 
