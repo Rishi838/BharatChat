@@ -49,7 +49,9 @@ module.exports.SetUpSocketIo = (io) => {
     // Handle Communication after logic is made
     const userId = socket.request.user._id;
     console.log(userId);
-    io.emit("test-msg",{Message : "Aur Tyagi Bhai kaise ho"})
+    io.emit("test-msg",{Message : "Aur Tyagi Bhai kaise ho"},(data)=>{
+      console.log("Data sent successfully",data)
+    })
 
     // Marking the user active in active user database
 
