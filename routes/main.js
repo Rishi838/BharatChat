@@ -15,8 +15,9 @@ module.exports.SetUpSocketIo = (io) => {
     console.log(socket.handshake.headers.cookie,socket.id,socket.query)
     const cookies = cookie.parse(socket.handshake.headers.cookie || "");
     const queryParameters = socket.handshake.query;
-    const parsedQuery = querystring.parse(queryParameters);
-    console.log(parsedQuery)
+    const key1Value = queryParameters.key1;
+  const key2Value = queryParameters.key2;
+  console.log(key1Value,key2Value)
     socket.request.cookies = cookies;
     console.log(cookies)
     await middleware(socket.request, socket.request.res, (err) => {
