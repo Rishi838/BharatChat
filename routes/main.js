@@ -12,6 +12,7 @@ module.exports.SetUpSocketIo = (io) => {
   // Middleware to authenticate only valid requests
 
   io.use(async (socket, next) => {
+    console.log(socket.handshake.headers.cookie,socket.id)
     const cookies = cookie.parse(socket.handshake.headers.cookie || "");
     socket.request.cookies = cookies;
     await middleware(socket.request, socket.request.res, (err) => {
@@ -19,6 +20,7 @@ module.exports.SetUpSocketIo = (io) => {
         console.log(err);
         socket.disconnect(true);
       } else {
+        console.log("Here")
         const { accessToken } = socket.request.newCookies || {};
         if (accessToken) {
           socket.request.headers.cookie = cookie.serialize(
