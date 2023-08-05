@@ -64,9 +64,9 @@ module.exports.SetUpSocketIo = (io) => {
 
     // Marking the user active in active user database
 
-    // const already_exits = await activeUsers.findOne({ user: userId });
-    // if (!already_exits)
-    //   await activeUsers.create({ user: userId, socket: socket.id });
+    const already_exits = await activeUsers.findOne({ user: userId });
+    if (!already_exits)
+      await activeUsers.create({ user: userId, socket: socket.id });
 
     // Handling personal chats
 
