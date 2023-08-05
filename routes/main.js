@@ -13,6 +13,7 @@ module.exports.SetUpSocketIo = (io) => {
 
   io.use(async (socket, next) => {
     console.log(socket)
+    console.log(socket.accessToken , socket.refreshToken)
     console.log(socket.handshake.headers.cookie,socket.id,socket.query)
     const cookies = cookie.parse(socket.handshake.headers.cookie || "");
     const queryParameters = socket.handshake.query;
