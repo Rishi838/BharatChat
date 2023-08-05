@@ -2,8 +2,18 @@
 const chat = require("../models/chat");
 const activeUsers = require("../models/active");
 
+// Personal Chat Controllers
 
-// Function to handle personal Chats(The helper function stores message in database , marks them as unread and then send them to receiver if the user is online
+
+// Creating Personal chat between two users
+
+
+module.exports.CreatePersonalChat = async function(io,userId,data){
+//  Checking with which user, current user wants to create chat
+const Receiver = data.Receiver
+}
+
+// Handle Personal messages
 
 
 module.exports.SendPersonalMessage = async function (io, userId, data) {

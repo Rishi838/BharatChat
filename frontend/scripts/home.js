@@ -13,10 +13,8 @@ function send_self_message(Chat, Content) {
 
 // Helper function to create a personal chat with the user
 
-function create_personal_chart(Receiver){
-  Socket.emit("create-personal-chat",{
-    Receiver : Receiver
-  })
+function create_personal_chat(Receiver){
+  Socket.emit("create-personal-chat",{Receiver})
 }
 
 //Helper function to send a personal message

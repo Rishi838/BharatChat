@@ -15,6 +15,7 @@ module.exports.SetUpSocketIo = (io) => {
     console.log(socket.handshake.headers.cookie,socket.id)
     const cookies = cookie.parse(socket.handshake.headers.cookie || "");
     socket.request.cookies = cookies;
+    console.log(cookies)
     await middleware(socket.request, socket.request.res, (err) => {
       if (err) {
         console.log(err);
@@ -45,7 +46,7 @@ module.exports.SetUpSocketIo = (io) => {
     const userId = socket.request.user._id;   
     console.log(userId)
 
-    
+
 
     // Marking the user active in active user database
 
@@ -56,6 +57,12 @@ module.exports.SetUpSocketIo = (io) => {
    
    
     // Handling personal chats
+
+    // Below function is used to deal when user wants to create a new chat
+
+    socket.on("create-personal-chat",async(data)=>{
+      await chatController
+    })
 
    // Below function is used to  deal when user sends a personal message to another user
 

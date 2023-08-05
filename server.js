@@ -5,6 +5,8 @@ const {SetUpSocketIo} = require('./routes/main')
 const path=require('path')
 const authRoutes = require('./routes/auth')
 
+require("dotenv").config();
+
 // Inititated instance of express
 const app = express()
 
@@ -15,8 +17,8 @@ app.use(express.static(path.join(__dirname)));
 app.use(express.json())
 
 // Listening  on dynamic port
-const server=app.listen(3000,()=>{
-    console.log("Listening on Port:3000")
+const server=app.listen(process.env.PORT,()=>{
+    console.log("Listening on Port: ",process.env.PORT)
 })
 app.use(authRoutes)
 
