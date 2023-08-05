@@ -55,8 +55,6 @@ module.exports.SetUpSocketIo = (io) => {
     console.log(userId);
     io.emit("test",{
       Message : "Hello"
-    },(data)=>{
-      console.log(data)
     })
     socket.on("test1",(data)=>{
       console.log(data)
