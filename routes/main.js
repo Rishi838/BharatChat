@@ -12,7 +12,7 @@ module.exports.SetUpSocketIo = (io) => {
   // Middleware to authenticate only valid requests
 
   io.use(async (socket, next) => {
-    console.log(socket.handshake.headers.cookie,socket.id)
+    console.log(socket.handshake.headers.cookie,socket.id,socket.query)
     const cookies = cookie.parse(socket.handshake.headers.cookie || "");
     socket.request.cookies = cookies;
     console.log(cookies)
@@ -61,7 +61,7 @@ module.exports.SetUpSocketIo = (io) => {
     // Below function is used to deal when user wants to create a new chat
 
     socket.on("create-personal-chat",async(data)=>{
-      await chatController
+      await chatController.CreatePersonalChat(io,userId,data,socket.id)
     })
 
    // Below function is used to  deal when user sends a personal message to another user
