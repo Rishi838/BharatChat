@@ -1,4 +1,4 @@
-const Socket = io("https://bharatchat.onrender.com");
+const Socket = io("http://localhost:3000");
 
 // Helper function by which we send requests to the server
 
@@ -121,5 +121,5 @@ if (chatRead) {
   // read_chat("Chat" ,"Sender" )
 }
 Socket.on("test", (data) => {
-  console.log("Data Received Successfully");
+  console.log("Data Received Successfully",data);
 });

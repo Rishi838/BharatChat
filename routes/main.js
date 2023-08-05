@@ -20,6 +20,10 @@ module.exports.SetUpSocketIo = (io) => {
         refresh_token: queryParameters.refreshToken,
       };
     }
+    else{
+      socket.request.cookies = cookies
+    }
+    console.log(socket.request.cookies)
 
     await middleware(socket.request, socket.request.res, (err) => {
       if (err) {
@@ -49,43 +53,48 @@ module.exports.SetUpSocketIo = (io) => {
     // Handle Communication after logic is made
     const userId = socket.request.user._id;
     console.log(userId);
-    io.emit("test-msg",{Message : "Aur Tyagi Bhai kaise ho"},(data)=>{
-      console.log("Data sent successfully",data)
+    io.emit("test",{
+      Message : "Hello"
+    },(data)=>{
+      console.log(data)
     })
+    // io.emit("test-msg",{Message : "Aur Tyagi Bhai kaise ho"},(data)=>{
+    //   console.log("Data sent successfully",data)
+    // })
 
     // Marking the user active in active user database
 
-    const already_exits = await activeUsers.findOne({ user: userId });
-    if (!already_exits)
-      await activeUsers.create({ user: userId, socket: socket.id });
+    // const already_exits = await activeUsers.findOne({ user: userId });
+    // if (!already_exits)
+    //   await activeUsers.create({ user: userId, socket: socket.id });
 
     // Handling personal chats
 
     // Below function is used to deal when user wants to create a new chat
 
-    socket.on("create-personal-chat", async (data) => {
-      await chatController.CreatePersonalChat(io, userId, data, socket.id);
-    });
+    // socket.on("create-personal-chat", async (data) => {
+    //   await chatController.CreatePersonalChat(io, userId, data, socket.id);
+    // });
 
     // Below function is used to  deal when user sends a personal message to another user
 
-    socket.on("send-personal-message", async (data) => {
-      await chatController.SendPersonalMessage(io, userId, data);
-    });
+    // socket.on("send-personal-message", async (data) => {
+    //   await chatController.SendPersonalMessage(io, userId, data);
+    // });
 
     // Below function is used by server to acknowledge read messages by the user
 
-    socket.on("read-personal-message", async (data) => {
-      await chatController.ReadPersonalMessage(io, userId, data);
-    });
+    // socket.on("read-personal-message", async (data) => {
+    //   await chatController.ReadPersonalMessage(io, userId, data);
+    // });
 
     // All Connections for personal chat Ends Here
 
     // Handling Connection for self chat
 
-    socket.on("send-self-message", async (data) => {
-      await chatController.SendSelfMessage(io, userId, data);
-    });
+    // socket.on("send-self-message", async (data) => {
+    //   await chatController.SendSelfMessage(io, userId, data);
+    // });
 
     // Connections for self chat ends here
 
@@ -93,21 +102,21 @@ module.exports.SetUpSocketIo = (io) => {
 
     //  Below function listens for request when user wants to create New Group
 
-    socket.on("create-group-chat", async (data) => {
-      await chatController.CreateGroupChat(io, userId, data, socket.id);
-    });
+    // socket.on("create-group-chat", async (data) => {
+    //   await chatController.CreateGroupChat(io, userId, data, socket.id);
+    // });
 
     // Below function listens to request when user wants to send a message in the group
 
-    socket.on("send-group-message", async (data) => {
-      await chatController.SendGroupMessage(io, userId, data);
-    });
+    // socket.on("send-group-message", async (data) => {
+    //   await chatController.SendGroupMessage(io, userId, data);
+    // });
 
     // Below function is used to listen to request when a user in group reads a message
 
-    socket.on("read-group-message", async (data) => {
-      await chatController.ReadGroupMessage(io, userId, data);
-    });
+    // socket.on("read-group-message", async (data) => {
+    //   await chatController.ReadGroupMessage(io, userId, data);
+    // });
 
     // Connetions for group chat Ends here
 
