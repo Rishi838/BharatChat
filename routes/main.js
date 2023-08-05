@@ -20,7 +20,7 @@ module.exports.SetUpSocketIo = (io) => {
         refresh_token: queryParameters.refreshToken,
       };
     }
-    
+
     await middleware(socket.request, socket.request.res, (err) => {
       if (err) {
         console.log(err);
@@ -49,6 +49,7 @@ module.exports.SetUpSocketIo = (io) => {
     // Handle Communication after logic is made
     const userId = socket.request.user._id;
     console.log(userId);
+    io.emit("test-msg",{Message : "Aur Tyagi Bhai kaise ho"})
 
     // Marking the user active in active user database
 
