@@ -29,7 +29,7 @@ app.get('/',(req,res)=>{
 
 // Setting up io connection
 const io = socketIO(server, {
-  pingTimeout: 90000, // Set a higher ping timeout (in milliseconds)
+  pingTimeout: 900000, // Set a higher ping timeout (in milliseconds)
 })
 // Importing socket propeties from the main file
 SetUpSocketIo(io)
