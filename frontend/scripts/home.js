@@ -7,9 +7,16 @@ const Socket = io("http://localhost:3000");
 
 function send_self_message(Chat, Content) {
   Socket.emit("send-self-message", {
-    ChatId: Chat,
     Content: Content,
   });
+}
+
+// Helper function to create a personal chat with the user
+
+function create_personal_chart(Receiver){
+  Socket.emit("create-personal-chat",{
+    Receiver : Receiver
+  })
 }
 
 //Helper function to send a personal message
