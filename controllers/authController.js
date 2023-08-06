@@ -193,7 +193,7 @@ module.exports.login = async (req, res) => {
     const acesstoken = jwt.sign(
       { email: req.body.email },
       process.env.ACCESS_TOKEN_PRIVATE_KEY,
-      { expiresIn: "10000s" }
+      { expiresIn: "1000" }
     );
     const refreshtoken = jwt.sign(
       { email: req.body.email },
@@ -258,7 +258,7 @@ module.exports.verify = async (req, res) => {
     const access_token = await jwt.sign(
       { email: req.query.email },
       process.env.ACCESS_TOKEN_PRIVATE_KEY,
-      { expiresIn: "10000s" }
+      { expiresIn: "1000" }
     );
 
     // Validity of refresh token is 30days
