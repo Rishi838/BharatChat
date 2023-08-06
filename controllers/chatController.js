@@ -6,134 +6,160 @@ const activeUsers = require("../models/active");
 
 // Creating Personal chat between two users
 
-module.exports.CreatePersonalChat = async function (io, userId, data,socketId) {
+module.exports.CreatePersonalChat = async function (
+  io,
+  userId,
+  data,
+  socketId
+) {
   //  Checking with which user, current user wants to create chat
   const Receiver = data.Receiver;
-  
-  //Creating particpants object with unread messages set ad zero 
+
+  // Searching if a personal chat already exists between the users
+
+  const chat_check = await chat.findOne({
+    $and: [
+      { [`Participants.${userId}`]: { $exists: true } },
+      { [`Participants.${Receiver}`]: { $exists: true } },
+    ],
+  });
+
+  // Sending create chat status fail if the chat already exists
+
+  if (chat_check) {
+    console.log(chat_check)
+    io.to(socketId).emit("create-personal-chat-fail", {
+      Message: "Chat Already Exists between the user",
+      ChatId: chat_check._id,
+    });
+    return;
+  }
+
+  //Creating particpants object with unread messages set ad zero
   const participantsMap = new Map();
   participantsMap.set(userId, 0);
   participantsMap.set(Receiver, 0);
 
   // Creating a new chat
+
   const new_chat = await chat.create({
     Type: "Personal",
-    Participants : [userId,Receiver],
-    Message : [],
-    LastChat : Date.now()
+    Participants: participantsMap,
+    Message: [],
+    LastChat: Date.now(),
   });
-  
+
+
   // Notifying it to the person who created the chat
 
-  io.to(socketId).emit("create-personal-chat-acknowledgement",{
-    ChatId : new_chat._id
-  })
+  io.to(socketId).emit("create-personal-chat-success", {
+    ChatId: new_chat._id,
+  });
 
   // Notifying it to the other person in the chat if the user is online
-  const is_receiver_active = await activeUsers.findOne({user : Receiver})
+  const is_receiver_active = await activeUsers.findOne({ user: Receiver });
 
   // If user is active then send acknowledgment of the chat to the sender
 
-  io.to(is_receiver_active.socket).emit("create-personal-chat-acknowledgement",{
-    ChatId : new_chat._id
-  })
+  io.to(is_receiver_active.socket).emit("create-personal-chat-success", {
+    ChatId: new_chat._id,
+  });
 };
 
-// Handle Personal messages
+// Handle case when user sends a mesage to someone
 
 module.exports.SendPersonalMessage = async function (io, userId, data) {
-  console.log("Message Received ,", data.ChatId, data.Receiver, data.Content);
+  console.log("Message Received ,", data.ChatId, data.Content);
+  // Fetching chatId
   const chatId = data.ChatId;
-  //  Checking if the user is active
-  const receiver = await activeUsers.findOne({ user: data.Receiver });
-  console.log(receiver);
-  const ReceiverId = data.Receiver;
-  console.log(ReceiverId);
+
+  // Finding the chat details
+
+  const privateChat = await chat.findOne({ _id: chatId });
+  // Finding out receiver
+
+  let receiverId = userId;
+
+  for (const [key, value] of privateChat.Participants) {
+    if (!userId.equals(key)) {
+      receiverId = key;
+      break;
+    }
+  }
+
+  //  Checking if the receiver is active
+
+  const receiver = await activeUsers.findOne({ user: receiverId });
 
   // Making new Map for the read status of Map
   const ReadStatusMap = new Map();
   ReadStatusMap.set(userId, "Read");
-  ReadStatusMap.set(ReceiverId, "Unread");
+  ReadStatusMap.set(receiverId, "Unread");
 
-  // // Checking if chat already existed or is a new one
-  if (chatId !== "New") {
-    // If it alredy exists then adding a new message
-    const privateChat = await chat.findOne({ _id: chatId });
-    console.log(privateChat);
-    privateChat.Messages.push({
-      Sender: userId,
-      Content: data.Content,
-      ReadStatus: ReadStatusMap,
-      Timestamp: Date.now(),
-    });
-    const undread_msg = privateChat.Participants.get(ReceiverId);
-    privateChat.Participants.set(ReceiverId, undread_msg + 1);
-    privateChat.LastChat = Date.now();
-    await privateChat.save();
-    // console.log(privateChat)
-  } else {
-    // Making new Map so that It give me freedom to store userId actually
-    const participantsMap = new Map();
-    participantsMap.set(userId, 0);
-    participantsMap.set(ReceiverId, 1);
-    // If chat is not valid , then create a new chat
-    const new_chat = await chat.create({
-      Type: "Personal",
-      Participants: participantsMap,
-      Messages: [
-        {
-          Sender: userId,
-          Content: data.Content,
-          ReadStatus: ReadStatusMap,
-          CreatedAt: Date.now(),
-        },
-      ],
-      LastChat: Date.now(),
-    });
-  }
+  // pushing messages in the database
+
+  privateChat.Messages.push({
+    Sender: userId,
+    Content: data.Content,
+    ReadStatus: ReadStatusMap,
+    Timestamp: Date.now(),
+  });
+
+  // Updating the undread count
+
+  privateChat.Participants.set(
+    receiverId,
+    privateChat.Participants.get(receiverId) + 1
+  );
+  privateChat.LastChat = Date.now();
+  await privateChat.save();
+
   // If the user is active sending it message thorugh socket for real time communication
   if (receiver) {
-    // Receive-personal-message event will be transmitted to receiver with the senderId and chatId and the messafe Receievd
-    console.log("Sendign message to receiver", receiver.socket);
-    io.to(receiver.socket).emit(
-      "receive-personal-message",
-      {
-        ChatId: chatId,
-        Sender: userId,
-        Content: data.Content,
-      },
-      (data) => {
-        console.log("Data Sent Successfully", data);
-      }
-    );
+    io.to(receiver.socket).emit("receive-personal-message", {
+      ChatId: chatId,
+      Sender: userId,
+      Content: data.Content,
+    });
   }
 };
 
 // Function to handle status of message(This function is hit when a user read a message in the chat so we need to set unread meessage of that user to 0 and update status of individual message in the chat that were marked as unread earlier)
 
 module.exports.ReadPersonalMessage = async function (io, userId, data) {
-  //  Handling marking message in the chat as read
-  console.log(data.ChatId, data.Sender);
+  //  Finding the chat in which user have read the message
+
   const chats = await chat.findOne({ _id: data.ChatId });
   const chat_msgs = chats.Messages;
-  console.log(chat_msgs, userId);
-  // Marking all the messages in the chat as Read
+
+  // Marking all the messages in the chat as Read by the reader
+
   for (let i = chat_msgs.length - 1; i >= 0; i--) {
-    console.log(chat_msgs[i].ReadStatus.get(userId));
     if (chat_msgs[i].ReadStatus.get(userId) == "Read") break;
     chat_msgs[i].ReadStatus.set(userId, "Read");
-    console.log(chat_msgs[i].ReadStatus.get(userId));
   }
+  chats.Participants.set(userId, 0);
   await chats.save();
-  // In the end sending acknowledgement to the sender to mark the message as read
-  // Checking if sender is active
-  const sender = await activeUsers.findOne({ user: data.Sender });
 
-  // Find Socket Id with the associated user if he is active
+  // In the end sending acknowledgement to the sender to mark the message as read(only if he is active)
+
+  // Finding sender in the chat
+
+  let senderId = userId;
+
+  for (const [key, value] of chats.Participants) {
+    if (!userId.equals(key)) {
+      senderId = key;
+      break;
+    }
+  }
+
+  const sender = await activeUsers.findOne({ user: senderId });
+
+  // Sending acknowldgment if the sender is active
   if (sender) {
     io.to(sender.socket).emit("read-message-ack", {
       ChatId: data.ChatId,
-      Reader: userId,
     });
   }
 };
@@ -141,44 +167,34 @@ module.exports.ReadPersonalMessage = async function (io, userId, data) {
 // Function to handle self messages (only thing here is to store it in database)
 
 module.exports.SendSelfMessage = async function (io, userId, data) {
-  console.log("Message Received ,", data.ChatId, data.Content);
-  const chatId = data.ChatId;
-  // Making new Map for the read status of Map
+
+  // Finding self chat associated with the user
+
+  const privateChat = await chat.findOne({
+    Type: "Self",
+    $and: [
+      { [`Participants.${userId}`]: { $exists: true } },
+    ],
+  });
+
+  // Creating ReadStatus Map
+
   const ReadStatusMap = new Map();
   ReadStatusMap.set(userId, "Read");
-  // // Checking if chat already existed or is a new one
-  if (chatId !== "New") {
-    // If it alredy exists then adding a new message
-    const privateChat = await chat.findOne({ _id: chatId });
-    console.log(privateChat);
-    privateChat.Messages.push({
-      Sender: userId,
-      Content: data.Content,
-      ReadStatus: ReadStatusMap,
-      Timestamp: Date.now(),
-    });
-    privateChat.LastChat = Date.now();
-    await privateChat.save();
-    // console.log(privateChat)
-  } else {
-    // Making new Map so that It give me freedom to store userId actually
-    const participantsMap = new Map();
-    participantsMap.set(userId, 0);
-    // If chat is not valid , then create a new chat
-    const new_chat = await chat.create({
-      Type: "Self",
-      Participants: participantsMap,
-      Messages: [
-        {
-          Sender: userId,
-          Content: data.Content,
-          ReadStatus: ReadStatusMap,
-          CreatedAt: Date.now(),
-        },
-      ],
-      LastChat: Date.now(),
-    });
-  }
+  
+  //  Pushing message to the message array
+
+
+
+  privateChat.Messages.push({
+    Sender: userId,
+    Content: data.Content,
+    ReadStatus: ReadStatusMap,
+    Timestamp: Date.now(),
+  });
+  privateChat.LastChat = Date.now();
+  await privateChat.save();
+
   //  No More actions are required as sender is same as receiver
 };
 

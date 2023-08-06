@@ -5,10 +5,8 @@ const Socket = io("http://localhost:3000");
 
 // Helper function to send a self message
 
-function send_self_message(Chat, Content) {
-  Socket.emit("send-self-message", {
-    Content: Content,
-  });
+function send_self_message(Content) {
+  Socket.emit("send-self-message", {Content});
 }
 
 // Helper function to create a personal chat with the user
@@ -19,23 +17,16 @@ function create_personal_chat(Receiver){
 
 //Helper function to send a personal message
 
-function send_personal_message(Chat, Receiver, Content) {
+function send_personal_message(ChatId, Content) {
   console.log("Emitting");
-  Socket.emit("send-personal-message", {
-    ChatId: Chat,
-    Receiver: Receiver,
-    Content: Content,
-  });
+  Socket.emit("send-personal-message", {ChatId,Content});
 }
 
 // Helper function to send read status for a chat for the given user
 
-function read_personal_message(Chat, Sender) {
+function read_personal_message(ChatId) {
   // Sending the sender Id so that his chat is updated whenever we read the chat
-  Socket.emit("read-personal-message", {
-    ChatId: Chat,
-    Sender: Sender,
-  });
+  Socket.emit("read-personal-message", {ChatId});
 }
 
 // Helper function to create a new group as admin
@@ -68,13 +59,29 @@ function read_group_message(GroupId)
 
 // Personal Messages listening
 
+// Receving acknowledgment when an new chat is created
+
+Socket.on("create-personal-chat-success",(data)=>{
+  console.log("Chat Created:",data.ChatId)
+
+  // Perform actions like creating a new chat bubble and other such things in the frontend
+})
+
+// Receiving fail status if the chat is not created (if it already exists)
+
+Socket.on("create-personal-chat-fail",(data)=>{
+  console.log("Chat Already Exists:",data)
+
+  // Either display a false message or redirect on the user chat
+
+})
+
 // Receing personal messages from server whwn user is active
 
 
 Socket.on("receive-personal-message", (data) => {
   // Accessing all data like who is sending what message and displaying it in real time, it will not work if user is offline
-  console.log("Here");
-  console.log(data);
+  console.log("Received: ",data);
 });
 
 
@@ -104,22 +111,3 @@ Socket.on("receive-group-message",(data)=>{
    // Perform Valid Changes in frontend
    console.log("Message Receivd")
 })
-
-
-// Sending message to the user, nit adding event listner, using refernce variable for it as of now
-const sendMsg = true;
-if (sendMsg) {
-  // When User Sends a message attach the corresponding chat Id , receiver Id, and message to be sent
-  // console.log("Executing Personal Message")
-  // send_personal_message("64ccbfd159b2f0951bd7c65c","64cbf5687bd3a64f90d87839","Yo, Guys I Am sending this message to update unread count")
-}
-
-// This part is invoked when user reads a message,just using the refrence variable to do it for now
-const chatRead = true;
-if (chatRead) {
-  // When user reads the unread chat this emit command is used to send acknowledgement to server that the all the messages in the server are now read by this user
-  // read_chat("Chat" ,"Sender" )
-}
-Socket.on("test", (data) => {
-  console.log("Data Received Successfully",data);
-});

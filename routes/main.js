@@ -6,31 +6,44 @@ const chatController = require("../controllers/chatController");
 
 require("dotenv").config();
 
-module.exports.SetUpSocketIo = (io) => {
+module.exports.SetUpSocketIo = async (io) => {
+
   // Middleware to authenticate only valid requests
 
-  io.use(async (socket, next) => {
+  await io.use(async (socket, next) => {
+    
+    // Accessing tokens in cookies for browser
+
     const cookies = cookie.parse(socket.handshake.headers.cookie || "");
+
+    // Way of accessing data coming from mobile appilcation
+
     const queryParameters = socket.handshake.query;
-    console.log("Access Token: ", queryParameters.accessToken);
-    console.log("Refresh Token: ", queryParameters.refreshToken);
+
+    // Modifying cookies if the request was from the application
+
     if (queryParameters.accessToken && queryParameters.refreshToken) {
       socket.request.cookies = {
         access_token: queryParameters.accessToken,
         refresh_token: queryParameters.refreshToken,
       };
+    } else {
+      socket.request.cookies = cookies;
     }
-    else{
-      socket.request.cookies = cookies
-    }
-    console.log(socket.request.cookies)
+
+    //  awaiting for the middleware to complete its work
 
     await middleware(socket.request, socket.request.res, (err) => {
       if (err) {
+
+        // Handling cases in which user does not get authenticated
+
         console.log(err);
         socket.disconnect(true);
       } else {
-        console.log("Here");
+
+        //  In other case checking if access token was returned, then sending new access token as response 
+
         const { accessToken } = socket.request.newCookies || {};
         if (accessToken) {
           socket.request.headers.cookie = cookie.serialize(
@@ -42,6 +55,9 @@ module.exports.SetUpSocketIo = (io) => {
             }
           );
         }
+
+        // Redirecting to next function of middleware 
+        
         next();
       }
     });
@@ -52,16 +68,6 @@ module.exports.SetUpSocketIo = (io) => {
   io.on("connection", async (socket) => {
     // Handle Communication after logic is made
     const userId = socket.request.user._id;
-    console.log(userId);
-    io.emit("test",{
-      Message : "Hello"
-    })
-    socket.on("test1",(data)=>{
-      console.log(data)
-    })
-    // io.emit("test-msg",{Message : "Aur Tyagi Bhai kaise ho"},(data)=>{
-    //   console.log("Data sent successfully",data)
-    // })
 
     // Marking the user active in active user database
 
@@ -73,29 +79,29 @@ module.exports.SetUpSocketIo = (io) => {
 
     // Below function is used to deal when user wants to create a new chat
 
-    // socket.on("create-personal-chat", async (data) => {
-    //   await chatController.CreatePersonalChat(io, userId, data, socket.id);
-    // });
+    socket.on("create-personal-chat", async (data) => {
+      await chatController.CreatePersonalChat(io, userId, data, socket.id);
+    });
 
     // Below function is used to  deal when user sends a personal message to another user
 
-    // socket.on("send-personal-message", async (data) => {
-    //   await chatController.SendPersonalMessage(io, userId, data);
-    // });
+    socket.on("send-personal-message", async (data) => {
+      await chatController.SendPersonalMessage(io, userId, data);
+    });
 
     // Below function is used by server to acknowledge read messages by the user
 
-    // socket.on("read-personal-message", async (data) => {
-    //   await chatController.ReadPersonalMessage(io, userId, data);
-    // });
+    socket.on("read-personal-message", async (data) => {
+      await chatController.ReadPersonalMessage(io, userId, data);
+    });
 
     // All Connections for personal chat Ends Here
 
     // Handling Connection for self chat
 
-    // socket.on("send-self-message", async (data) => {
-    //   await chatController.SendSelfMessage(io, userId, data);
-    // });
+    socket.on("send-self-message", async (data) => {
+      await chatController.SendSelfMessage(io, userId, data);
+    });
 
     // Connections for self chat ends here
 
@@ -103,21 +109,21 @@ module.exports.SetUpSocketIo = (io) => {
 
     //  Below function listens for request when user wants to create New Group
 
-    // socket.on("create-group-chat", async (data) => {
-    //   await chatController.CreateGroupChat(io, userId, data, socket.id);
-    // });
+    socket.on("create-group-chat", async (data) => {
+      await chatController.CreateGroupChat(io, userId, data, socket.id);
+    });
 
     // Below function listens to request when user wants to send a message in the group
 
-    // socket.on("send-group-message", async (data) => {
-    //   await chatController.SendGroupMessage(io, userId, data);
-    // });
+    socket.on("send-group-message", async (data) => {
+      await chatController.SendGroupMessage(io, userId, data);
+    });
 
     // Below function is used to listen to request when a user in group reads a message
 
-    // socket.on("read-group-message", async (data) => {
-    //   await chatController.ReadGroupMessage(io, userId, data);
-    // });
+    socket.on("read-group-message", async (data) => {
+      await chatController.ReadGroupMessage(io, userId, data);
+    });
 
     // Connetions for group chat Ends here
 
