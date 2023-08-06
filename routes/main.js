@@ -54,7 +54,7 @@ module.exports.SetUpSocketIo = async (io) => {
           //  This is the case when reuqest is made my android application
            console.log("Sending")
           socket.emit("access-token",{accessToken})
-          console.log(sent)
+          console.log("sent")
 
           } else {
 
