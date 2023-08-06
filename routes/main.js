@@ -33,6 +33,8 @@ module.exports.SetUpSocketIo = async (io) => {
 
     const source = queryParameters.source;
 
+    console.log(source)
+
     //  awaiting for the middleware to complete its work
 
     await middleware(socket.request, socket.request.res, (err) => {
@@ -45,12 +47,14 @@ module.exports.SetUpSocketIo = async (io) => {
         //  In other case checking if access token was returned, then sending new access token as response
 
         const { accessToken } = socket.request.newCookies || {};
+        console.log("Access token" , accessToken)
         if (accessToken) {
           if (source === "app") {
 
           //  This is the case when reuqest is made my android application
-
+           console.log("Sending")
           socket.emit("access-token",{accessToken})
+          console.log(sent)
 
           } else {
 
