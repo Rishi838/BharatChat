@@ -1,3 +1,4 @@
+import { postData } from "../frontend_utils/fetch_api.js";
 const Socket = io("http://localhost:3000");
 
 // Helper function by which we send requests to the server
@@ -56,6 +57,13 @@ function read_group_message(GroupId)
 }
 
 // Functions through which we listen to response from the server
+
+// Receving access token and  then sending it to update cookies api to update the cookies
+
+Socket.on("access-token",async(data)=>{
+  console.log("Here")
+   await postData('update-access-token',{acesstoken : data.acessToken})
+})
 
 // Personal Messages listening
 

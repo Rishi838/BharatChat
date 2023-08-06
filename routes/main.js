@@ -49,26 +49,13 @@ module.exports.SetUpSocketIo = async (io) => {
         const { accessToken } = socket.request.newCookies || {};
         console.log("Access token" , accessToken)
         if (accessToken) {
-          if (source === "app") {
+          
+        //  Handling cases when access token are available to be refreshed
 
-          //  This is the case when reuqest is made my android application
            console.log("Sending")
-          socket.emit("access-token",{accessToken})
+          socket.to(socket.id).emit("access-token",{accessToken})
           console.log("sent")
 
-          } else {
-
-            // This is the case when request is made my web browser
-
-            socket.request.headers.cookie = cookie.serialize(
-              "access_token",
-              accessToken,
-              {
-                httpOnly: true,
-                sameSite: "lax",
-              }
-            );
-          }
         }
 
         // Redirecting to next function of middleware
