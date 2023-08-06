@@ -7,11 +7,9 @@ const chatController = require("../controllers/chatController");
 require("dotenv").config();
 
 module.exports.SetUpSocketIo = async (io) => {
-
   // Middleware to authenticate only valid requests
 
   await io.use(async (socket, next) => {
-    
     // Accessing tokens in cookies for browser
 
     const cookies = cookie.parse(socket.handshake.headers.cookie || "");
@@ -31,33 +29,46 @@ module.exports.SetUpSocketIo = async (io) => {
       socket.request.cookies = cookies;
     }
 
+    // Checking what was the source of this connection reuqest
+
+    const source = queryParameters.source;
+
     //  awaiting for the middleware to complete its work
 
     await middleware(socket.request, socket.request.res, (err) => {
       if (err) {
-
         // Handling cases in which user does not get authenticated
 
         console.log(err);
         socket.disconnect(true);
       } else {
-
-        //  In other case checking if access token was returned, then sending new access token as response 
+        //  In other case checking if access token was returned, then sending new access token as response
 
         const { accessToken } = socket.request.newCookies || {};
         if (accessToken) {
-          socket.request.headers.cookie = cookie.serialize(
-            "access_token",
-            accessToken,
-            {
-              httpOnly: true,
-              sameSite: "lax",
-            }
-          );
+          if (source === "app") {
+
+          //  This is the case when reuqest is made my android application
+
+          socket.emit("access-token",{accessToken})
+
+          } else {
+
+            // This is the case when request is made my web browser
+
+            socket.request.headers.cookie = cookie.serialize(
+              "access_token",
+              accessToken,
+              {
+                httpOnly: true,
+                sameSite: "lax",
+              }
+            );
+          }
         }
 
-        // Redirecting to next function of middleware 
-        
+        // Redirecting to next function of middleware
+
         next();
       }
     });
@@ -65,7 +76,7 @@ module.exports.SetUpSocketIo = async (io) => {
 
   // Establishing Connection with the server side socketIo
 
-  io.on("connection", async (socket) => {
+  await io.on("connection", async (socket) => {
     // Handle Communication after logic is made
     const userId = socket.request.user._id;
 

@@ -68,7 +68,7 @@ module.exports.CreatePersonalChat = async function (
 
 // Handle case when user sends a mesage to someone
 
-module.exports.SendPersonalMessage = async function (io, userId, data) {
+module.exports.SendPersonalMessage = async function (io, userId, data) { 
   console.log("Message Received ,", data.ChatId, data.Content);
   // Fetching chatId
   const chatId = data.ChatId;
@@ -118,7 +118,6 @@ module.exports.SendPersonalMessage = async function (io, userId, data) {
   if (receiver) {
     io.to(receiver.socket).emit("receive-personal-message", {
       ChatId: chatId,
-      Sender: userId,
       Content: data.Content,
     });
   }
@@ -130,15 +129,16 @@ module.exports.ReadPersonalMessage = async function (io, userId, data) {
   //  Finding the chat in which user have read the message
 
   const chats = await chat.findOne({ _id: data.ChatId });
-  const chat_msgs = chats.Messages;
 
+  const chat_msgs = chats.Messages;
+ 
   // Marking all the messages in the chat as Read by the reader
 
   for (let i = chat_msgs.length - 1; i >= 0; i--) {
     if (chat_msgs[i].ReadStatus.get(userId) == "Read") break;
     chat_msgs[i].ReadStatus.set(userId, "Read");
   }
-  chats.Participants.set(userId, 0);
+  chats.Participants.set(userId, 0)
   await chats.save();
 
   // In the end sending acknowledgement to the sender to mark the message as read(only if he is active)
