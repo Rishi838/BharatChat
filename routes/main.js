@@ -33,8 +33,6 @@ module.exports.SetUpSocketIo = async (io) => {
 
     const source = queryParameters.source;
 
-    console.log(source)
-
     //  awaiting for the middleware to complete its work
 
     await middleware(socket.request, socket.request.res, (err) => {
@@ -44,21 +42,8 @@ module.exports.SetUpSocketIo = async (io) => {
         console.log(err);
         socket.disconnect(true);
       } else {
-        //  In other case checking if access token was returned, then sending new access token as response
-
-        const { accessToken } = socket.request.newCookies || {};
-        console.log("Access token" , accessToken)
-        if (accessToken) {
-          
-        //  Handling cases when access token are available to be refreshed
-
-           console.log("Sending")
-          socket.to(socket.id).emit("access-token",{accessToken})
-          console.log("sent")
-
-        }
-
-        // Redirecting to next function of middleware
+       
+      //  Giving connection to the user and specifying access token in socket.request.newCookies if new access token was made
 
         next();
       }
@@ -68,6 +53,17 @@ module.exports.SetUpSocketIo = async (io) => {
   // Establishing Connection with the server side socketIo
 
   await io.on("connection", async (socket) => {
+
+    // Before Establishing connection, making sure that user has an active access token set in his cookies(web) or shared preference(application)
+
+    const { accessToken } = socket.request.newCookies || {};
+   
+     //  Handling cases when access token are available to be refreshed(Emitting only to particular socket Id because if it is brodcasted to all then all users will have same session running in their browser)
+
+    if (accessToken) 
+       io.to(socket.id).emit("access-token",{accessToken : accessToken})
+
+
     // Handle Communication after logic is made
     const userId = socket.request.user._id;
 
@@ -76,6 +72,10 @@ module.exports.SetUpSocketIo = async (io) => {
     const already_exits = await activeUsers.findOne({ user: userId });
     if (!already_exits)
       await activeUsers.create({ user: userId, socket: socket.id });
+
+    socket.on("test",(data)=>{
+      console.log("here")
+    })
 
     // Handling personal chats
 

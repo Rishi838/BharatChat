@@ -4,6 +4,7 @@ const socketIO = require("socket.io");
 const {SetUpSocketIo} = require('./routes/main')
 const path=require('path')
 const authRoutes = require('./routes/auth')
+const mainRoutes = require('./controllers/mainController.js')
 
 require("dotenv").config();
 
@@ -21,6 +22,7 @@ const server=app.listen(process.env.PORT,()=>{
     console.log("Listening on Port: ",process.env.PORT)
 })
 app.use(authRoutes)
+app.use(mainRoutes)
 
 app.get('/auth',(req,res)=>{
   res.render("auth")

@@ -60,9 +60,9 @@ function read_group_message(GroupId)
 
 // Receving access token and  then sending it to update cookies api to update the cookies
 
-Socket.on("access-token",async(data)=>{
+Socket.on("access-token",async (data)=>{
   console.log("Here")
-   await postData('update-access-token',{acesstoken : data.acessToken})
+   await postData('/update-access-token',{acessToken : data.accessToken})
 })
 
 // Personal Messages listening

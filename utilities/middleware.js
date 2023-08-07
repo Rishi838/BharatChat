@@ -70,7 +70,7 @@ const verifyTokenAndRefresh = async (req, res, next) => {
               const newAccessToken = jwt.sign(
                 { email: user.Email },
                 process.env.ACCESS_TOKEN_PRIVATE_KEY,
-                { expiresIn: "9000s" }
+                { expiresIn: "1000" }
               );
 
               // Attach the new access token to the cookies
