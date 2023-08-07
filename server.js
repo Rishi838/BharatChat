@@ -1,10 +1,10 @@
 // Required packages and dependencies
 const express = require('express')
 const socketIO = require("socket.io");
-const {SetUpSocketIo} = require('./routes/main')
+const {SetUpSocketIo} = require('./routes/chat')
 const path=require('path')
 const authRoutes = require('./routes/auth')
-const mainRoutes = require('./controllers/mainController.js')
+const mainRoutes = require('./routes/main')
 
 require("dotenv").config();
 
