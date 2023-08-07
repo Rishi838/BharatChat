@@ -29,22 +29,16 @@ module.exports.SetUpSocketIo = async (io) => {
       socket.request.cookies = cookies;
     }
 
-    // Checking what was the source of this connection reuqest
-
-    const source = queryParameters.source;
-
     //  awaiting for the middleware to complete its work
 
     await middleware(socket.request, socket.request.res, (err) => {
       if (err) {
         // Handling cases in which user does not get authenticated
-
-        console.log(err);
+       console.log(err)
         socket.disconnect(true);
       } else {
        
-      //  Giving connection to the user and specifying access token in socket.request.newCookies if new access token was made
-
+      //  Giving connection to the user and specifying access token in socket.request.newCookies if new access token was mad
         next();
       }
     });
@@ -59,9 +53,9 @@ module.exports.SetUpSocketIo = async (io) => {
     const { accessToken } = socket.request.newCookies || {};
    
      //  Handling cases when access token are available to be refreshed(Emitting only to particular socket Id because if it is brodcasted to all then all users will have same session running in their browser)
-
-    if (accessToken) 
-       io.to(socket.id).emit("access-token",{accessToken : accessToken})
+     console.log("In", accessToken)
+     if(accessToken!=null)
+       io.to(socket.id).emit("access-token",{accessToken})
 
 
     // Handle Communication after logic is made
@@ -73,9 +67,6 @@ module.exports.SetUpSocketIo = async (io) => {
     if (!already_exits)
       await activeUsers.create({ user: userId, socket: socket.id });
 
-    socket.on("test",(data)=>{
-      console.log("here")
-    })
 
     // Handling personal chats
 
@@ -83,7 +74,7 @@ module.exports.SetUpSocketIo = async (io) => {
 
     socket.on("create-personal-chat", async (data) => {
       await chatController.CreatePersonalChat(io, userId, data, socket.id);
-    });
+    })
 
     // Below function is used to  deal when user sends a personal message to another user
 

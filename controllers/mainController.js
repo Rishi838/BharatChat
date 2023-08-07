@@ -6,6 +6,8 @@ const router = express.Router()
 // Route to update access token
 
 router.post("/update-access-token",async (req,res)=>{
+
+  console.log("Here: " ,req.body.acessToken)
    
     //  Checking whether an access token was attached to the req field or not
  
