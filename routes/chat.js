@@ -54,12 +54,13 @@ module.exports.SetUpSocketIo = async (io) => {
    
      //  Handling cases when access token are available to be refreshed(Emitting only to particular socket Id because if it is brodcasted to all then all users will have same session running in their browser)
      if(accessToken!=null)
-       io.to(socket.id).emit("access-token",{accessToken})
+      io.to(socket.id).emit("access-token",{accessToken})
 
 
     // Handle Communication after logic is made
     const userId = socket.request.user._id;
-
+    const userName = socket.request.user.Name
+    const userEmail = socket.request.user.Email
     // Marking the user active in active user database
 
     const already_exits = await activeUsers.findOne({ user: userId });
@@ -67,55 +68,93 @@ module.exports.SetUpSocketIo = async (io) => {
       await activeUsers.create({ user: userId, socket: socket.id });
 
 
-    // Handling personal chats
+    // Handling basic functionality of app
 
-    // Below function is used to deal when user wants to create a new chat
+    // Fetching user details ✅
+
+    socket.on('fetch-user-details',async(data)=>{
+      await chatController.FetchDetails(io,userId,userEmail,userName,socket.id);
+    })
+
+    // Search functionality
+
+    socket.on("search-user",async(data)=>{
+      await chatController.SearchUser(io,userId,data,socket.id)
+    })
+
+
+    // Handling personal chats✅
+
+    // Below function is used to deal when user wants to create a new chat✅
 
     socket.on("create-personal-chat", async (data) => {
       await chatController.CreatePersonalChat(io, userId, data, socket.id);
     })
 
-    // Below function is used to  deal when user sends a personal message to another user
+    // Below function is used to  deal when user sends a personal message to another user✅
 
     socket.on("send-personal-message", async (data) => {
       await chatController.SendPersonalMessage(io, userId, data);
     });
 
-    // Below function is used by server to acknowledge read messages by the user
+    // Below function is used by server to acknowledge read messages by the user✅
 
     socket.on("read-personal-message", async (data) => {
       await chatController.ReadPersonalMessage(io, userId, data);
     });
 
+  //  Below function is used by server to personal chat of the user ✅
+
+    socket.on("fetch-personal-chat",async(data)=>{
+      await chatController.FetchPersonalChat(io,data,socket.id);
+    })
+
     // All Connections for personal chat Ends Here
 
-    // Handling Connection for self chat
+
+    // Handling Connection for self chat✅
+
+
+    // Adding new messages in self chat ✅
 
     socket.on("send-self-message", async (data) => {
       await chatController.SendSelfMessage(io, userId, data);
     });
 
+
+    // Fetching self chats of a user✅
+
+    socket.on("fetch-self-chat",async(data)=>{
+      await chatController.FetchSelfChat(io,userId,socket.id);
+    })
+
     // Connections for self chat ends here
 
     // Handling Connections for group chat
 
-    //  Below function listens for request when user wants to create New Group
+    //  Below function listens for request when user wants to create New Group ✅
 
     socket.on("create-group-chat", async (data) => {
       await chatController.CreateGroupChat(io, userId, data, socket.id);
     });
 
-    // Below function listens to request when user wants to send a message in the group
+    // Below function listens to request when user wants to send a message in the group ✅
 
     socket.on("send-group-message", async (data) => {
       await chatController.SendGroupMessage(io, userId, data);
     });
 
-    // Below function is used to listen to request when a user in group reads a message
+    // Below function is used to listen to request when a user in group reads a message ✅
 
     socket.on("read-group-message", async (data) => {
       await chatController.ReadGroupMessage(io, userId, data);
     });
+
+    //  Below function is used to add a member to grp
+
+    socket.on("add-member",async(data)=>{
+      await chatController.AddNewMember(io,userId,data,socket.id)
+    })
 
     // Connetions for group chat Ends here
 

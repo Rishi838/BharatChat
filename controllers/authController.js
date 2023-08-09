@@ -1,7 +1,7 @@
 // Importing required packages
 
 const user_login = require("../models/user");
-const chat = require("../models/chat");
+const self_chat = require("../models/self_chat");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -285,12 +285,8 @@ module.exports.verify = async (req, res) => {
 
     //  Creating self chat for the user at the time of verification
 
-    const participantsMap = new Map();
-    participantsMap.set(user._id, 0);
-
-    const result = await chat.create({
-      Type: "Self",
-      Participants: participantsMap,
+    const result = await self_chat.create({
+      UserId : user._id,
       Messages: [],
       LastChat: Date.now(),
     });

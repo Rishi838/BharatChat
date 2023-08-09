@@ -1,10 +1,42 @@
 // Importing Required Modules and packages
-const chat = require("../models/chat");
+const personal_chat = require("../models/personal_chat");
+const self_chat = require("../models/self_chat");
+const group_chat = require("../models/group_chat");
 const activeUsers = require("../models/active");
 
-// Personal Chat Controllers
+// Basic controller functions
 
-// Creating Personal chat between two users
+// Fetch user details ✅
+
+module.exports.FetchDetails = async function (
+  io,
+  userId,
+  userEmail,
+  userName,
+  socketId
+) {
+  //  Successfully returning details to user
+
+  io.to(socketId).emit("user-details", {
+    Name: userName,
+    Email: userEmail,
+    Id: userId,
+  });
+};
+
+// Search functionality
+
+module.exports.SearchUser = async function (io, userId, data, socketId) {
+  //  Searching user in the database(which contains that name string)(maximum 8)
+
+  io.to(socketId).emit("searched-user", {
+    Users: [],
+  });
+};
+
+// Personal Chat Controllers ✅
+
+// Creating Personal chat between two users ✅
 
 module.exports.CreatePersonalChat = async function (
   io,
@@ -17,7 +49,7 @@ module.exports.CreatePersonalChat = async function (
 
   // Searching if a personal chat already exists between the users
 
-  const chat_check = await chat.findOne({
+  const chat_check = await personal_chat.findOne({
     $and: [
       { [`Participants.${userId}`]: { $exists: true } },
       { [`Participants.${Receiver}`]: { $exists: true } },
@@ -27,7 +59,6 @@ module.exports.CreatePersonalChat = async function (
   // Sending create chat status fail if the chat already exists
 
   if (chat_check) {
-    console.log(chat_check)
     io.to(socketId).emit("create-personal-chat-fail", {
       Message: "Chat Already Exists between the user",
       ChatId: chat_check._id,
@@ -42,40 +73,40 @@ module.exports.CreatePersonalChat = async function (
 
   // Creating a new chat
 
-  const new_chat = await chat.create({
-    Type: "Personal",
+  const new_chat = await personal_chat.create({
     Participants: participantsMap,
     Message: [],
     LastChat: Date.now(),
   });
 
-
   // Notifying it to the person who created the chat
 
   io.to(socketId).emit("create-personal-chat-success", {
     ChatId: new_chat._id,
+    Partner: data.Receiver,
   });
 
   // Notifying it to the other person in the chat if the user is online
-  const is_receiver_active = await activeUsers.findOne({ user: Receiver });
-
+  const is_receiver_active = await activeUsers.findOne({ user: data.Receiver });
   // If user is active then send acknowledgment of the chat to the sender
-
-  io.to(is_receiver_active.socket).emit("create-personal-chat-success", {
-    ChatId: new_chat._id,
-  });
+  if (is_receiver_active) {
+    io.to(is_receiver_active.socket).emit("create-personal-chat-success", {
+      ChatId: new_chat._id,
+      Partner: userId,
+    });
+  }
 };
 
-// Handle case when user sends a mesage to someone
+// Handle case when user sends a mesage to someone✅
 
-module.exports.SendPersonalMessage = async function (io, userId, data) { 
+module.exports.SendPersonalMessage = async function (io, userId, data) {
   console.log("Message Received ,", data.ChatId, data.Content);
   // Fetching chatId
   const chatId = data.ChatId;
 
   // Finding the chat details
 
-  const privateChat = await chat.findOne({ _id: chatId });
+  const privateChat = await personal_chat.findOne({ _id: chatId });
   // Finding out receiver
 
   let receiverId = userId;
@@ -98,7 +129,7 @@ module.exports.SendPersonalMessage = async function (io, userId, data) {
 
   // pushing messages in the database
 
-  privateChat.Messages.push({
+  privateChat.Messages.unshift({
     Sender: userId,
     Content: data.Content,
     ReadStatus: ReadStatusMap,
@@ -123,22 +154,22 @@ module.exports.SendPersonalMessage = async function (io, userId, data) {
   }
 };
 
-// Function to handle status of message(This function is hit when a user read a message in the chat so we need to set unread meessage of that user to 0 and update status of individual message in the chat that were marked as unread earlier)
+// Function to handle status of message(This function is hit when a user read a message in the chat so we need to set unread meessage of that user to 0 and update status of individual message in the chat that were marked as unread earlier)✅
 
 module.exports.ReadPersonalMessage = async function (io, userId, data) {
   //  Finding the chat in which user have read the message
 
-  const chats = await chat.findOne({ _id: data.ChatId });
+  const chats = await personal_chat.findOne({ _id: data.ChatId });
 
   const chat_msgs = chats.Messages;
- 
+
   // Marking all the messages in the chat as Read by the reader
 
-  for (let i = chat_msgs.length - 1; i >= 0; i--) {
+  for (let i = 0; i<chat_msgs.length; i++) {
     if (chat_msgs[i].ReadStatus.get(userId) == "Read") break;
     chat_msgs[i].ReadStatus.set(userId, "Read");
   }
-  chats.Participants.set(userId, 0)
+  chats.Participants.set(userId, 0);
   await chats.save();
 
   // In the end sending acknowledgement to the sender to mark the message as read(only if he is active)
@@ -158,38 +189,38 @@ module.exports.ReadPersonalMessage = async function (io, userId, data) {
 
   // Sending acknowldgment if the sender is active
   if (sender) {
-    io.to(sender.socket).emit("read-message-ack", {
+    io.to(sender.socket).emit("read-personal-msg-ack", {
       ChatId: data.ChatId,
     });
   }
 };
 
-// Function to handle self messages (only thing here is to store it in database)
+// Fetching personal chat messages ✅
+
+module.exports.FetchPersonalChat = async function (io,data, socketId) {
+  // Fetching personal chat between the users
+
+  const personal_msgs = await personal_chat.findOne({_id : data.ChatId})
+  
+  // Returning it to socket demanding it
+  io.to(socketId).emit("personal-chat", {
+    Messages: personal_msgs.Messages,
+  });
+};
+
+// Function to handle self messages (only thing here is to store it in database and fetch it✅
 
 module.exports.SendSelfMessage = async function (io, userId, data) {
-
   // Finding self chat associated with the user
 
-  const privateChat = await chat.findOne({
-    Type: "Self",
-    $and: [
-      { [`Participants.${userId}`]: { $exists: true } },
-    ],
+  const privateChat = await self_chat.findOne({
+    UserId: userId,
   });
 
-  // Creating ReadStatus Map
-
-  const ReadStatusMap = new Map();
-  ReadStatusMap.set(userId, "Read");
-  
   //  Pushing message to the message array
 
-
-
-  privateChat.Messages.push({
-    Sender: userId,
+  privateChat.Messages.unshift({
     Content: data.Content,
-    ReadStatus: ReadStatusMap,
     Timestamp: Date.now(),
   });
   privateChat.LastChat = Date.now();
@@ -198,50 +229,182 @@ module.exports.SendSelfMessage = async function (io, userId, data) {
   //  No More actions are required as sender is same as receiver
 };
 
-// Function to create group chat(Constraint on group is that it should have min 2 participant)
+// Fetching self chat ✅
+
+module.exports.FetchSelfChat = async function (io, userId, socketId) {
+  // Searching for user in self chat database
+
+  const self_msgs = await self_chat.findOne({ UserId: userId })
+  
+  // Returning chats to the user
+
+  io.to(socketId).emit("self-chat", {
+    Messages: self_msgs.Messages,
+  });
+};
+
+// Function to create group chat(Constraint on group is that it should have min 2 participant) ✅
 
 module.exports.CreateGroupChat = async function (io, userId, data, socketId) {
-  console.log(
-    "Request To create Group Chat Received, set Admin as the current user",
-    data.Name,
-    data.Description,
-    data.Participants
-  );
+  // Checking whether number of participants is greater than 2 or not and other things like name is provided or not
+
+  if (data.Name == null || data.Name == "" || data.Participants.length < 2 ) {
+    //  Emitting false status to the user trying to create a group
+
+    io.to(socketId).emit("create-group-chat-fail", {
+      Message:
+        "Group Chat fail as Name is not provided or Participants are less than 3",
+    });
+    return;
+  }
+  const ParticipantsMap = new Map();
+  for(let i=0;i<data.Participants.length;i++)
+  ParticipantsMap.set(data.Participants[i],0)
+  ParticipantsMap.set(userId,0)
+
+  // Now creating a new group in the database
+
+  const new_group_chat = await group_chat.create({
+    Name: data.Name,
+    Description: data.Description,
+    Admin: userId,
+    Participants: ParticipantsMap,
+    Messages: [],
+    LastChat: Date.now(),
+  });
+
+  console.log(new_group_chat)
 
   // After the group has been created send a success message to creator or the group
-  // Looping thorugh active users of the group
-  io.emit("create-group-chat-successful", {
-    GroupId: "Id of the Group",
-    Name: "Name of the group",
-    Description: "Group Description",
-    Participants: "Array of Group Particpants",
+
+  io.emit("create-group-chat-success", {
+    GroupId: new_group_chat._id,
+    Name: data.Name,
+    Description: data.Description,
+    Participants: data.Participants,
   });
+
+  // Looping thorugh active users of the group
 };
 
 // Function to delete a grouo a group(only by admin)
 
-module.exports.DeleteGroupChat = async function (io, userId, data) {};
+module.exports.DeleteGroupChat = async function (io, userId, data) {
+  
+  //  Fetching details of chat which has to be deleted
+
+};
 
 // Function to add a new member to group(only by admin)
 
-module.exports.AddNewMember = async function (io, userId, data) {};
+module.exports.AddNewMember = async function (io, userId, data,socketId) {
+
+  // Fetching the chat details
+
+  const grp_chat = await group_chat.findOne({_id : data.GroupId})
+  
+  if(grp_chat.Admin != userId){
+    io.to(socketId).emit("add-member-fail",{
+      Message : "You Should be admin to add a member"
+    })
+    return;
+  }
+
+};
 
 // Function to leave a group(any regular user)
 
 module.exports.leaveGroup = async function (io, userId, data) {};
 
-// Function to execute when a user sends a message in the server
+// Function to execute when a user sends a message in the server ✅
 
 module.exports.SendGroupMessage = async function (io, userId, data) {
-  console.log("MEssage Received Successfully");
 
   //  Store in the database in appropirate manner
 
-  // Send the message to active users in the group using loops
+  // Finding the grp chat whose message has come
 
-  io.emit("receive-group-message", { GroupId, Content, Sender });
+  const grp_chat = await group_chat.findOne({_id: data.GroupId})
+
+  // Creating a Read Status Map for the Message and also updating the undread Message Count
+
+
+  const ReadStatusMap = new Map()
+  for(const [key,value] of grp_chat.Participants){
+
+    ReadStatusMap.set(key,"Unread")
+
+    // For sender keep the count same as he will always read the message he sends
+
+    if(key!=userId){
+
+    // Updating the Participant unread count
+
+    grp_chat.Participants.set(key,grp_chat.Participants.get(key)+1)
+
+    // Sending him real time message if a user is online
+
+    const receiver = await activeUsers.findOne({ user: key });
+    if(receiver)
+    {
+      io.to(receiver.socket).emit("receive-group-message",{
+        Sender : userId,
+        Content : data.Content
+      })
+    }
+    }
+  }
+
+  // Pushing message in the front of the Message array and saving it
+
+  grp_chat.Messages.unshift({
+    Sender: userId,
+    Content: data.Content,
+    ReadStatus: ReadStatusMap,
+    Timestamp: Date.now(),
+  })
+  await grp_chat.save()
+
 };
 
-// Function to execute when a user reads a message
+// Function to execute when a user reads a message ✅
 
-module.exports.ReadGroupMessage = async function (io, userId, data) {};
+module.exports.ReadGroupMessage = async function (io, userId, data) {
+
+  // Fecthing the grp chat whose Messages are read
+
+  const grp_chat = await group_chat.findOne({_id: data.GroupId})
+
+  grp_chat.Participants.set(userId,0);
+
+  const grp_msgs = grp_chat.Messages
+
+  for(let i=0;i<grp_msgs.length;i++)
+  {
+    if(grp_msgs[i].ReadStatus.get(userId)=="Read")break;
+    else grp_msgs[i].ReadStatus.set(userId,"Read")
+  }
+
+  await grp_chat.save()
+
+
+  for(const [key,value] of grp_chat.Participants){
+    if(key!=userId){
+
+
+    // Sending him real time message if a user is online
+
+    const receiver = await activeUsers.findOne({ user: key });
+    if(receiver)
+    {
+      io.to(receiver.socket).emit("read-grp-msg-ack",{
+        Reader : userId,
+        ChatId : data.ChatId
+      })
+    }
+    }
+  }
+
+
+
+};
