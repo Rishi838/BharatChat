@@ -53,6 +53,7 @@ module.exports.SetUpSocketIo = async (io) => {
     const { accessToken } = socket.request.newCookies || {};
    
      //  Handling cases when access token are available to be refreshed(Emitting only to particular socket Id because if it is brodcasted to all then all users will have same session running in their browser)
+      
      if(accessToken!=null)
       io.to(socket.id).emit("access-token",{accessToken})
 
@@ -76,7 +77,7 @@ module.exports.SetUpSocketIo = async (io) => {
       await chatController.FetchDetails(io,userId,userEmail,userName,socket.id);
     })
 
-    // Search functionality
+    // Search functionality ✅
 
     socket.on("search-user",async(data)=>{
       await chatController.SearchUser(io,userId,data,socket.id)
@@ -150,10 +151,22 @@ module.exports.SetUpSocketIo = async (io) => {
       await chatController.ReadGroupMessage(io, userId, data);
     });
 
-    //  Below function is used to add a member to grp
+    //  Below function is used to add a member to grp ✅
 
     socket.on("add-member",async(data)=>{
       await chatController.AddNewMember(io,userId,data,socket.id)
+    })
+
+    // Below function is used to leave a grp
+
+    socket.on("leave-grp",async(data)=>{
+      await chatController.LeaveGroup(io,userId,data,socket.id)
+    })
+
+    // Below function is used to delete a grp
+    
+    socket.on("delete-grp",async(data)=>{
+      await chatController.DeleteGroupChat(io,userId,data,socket.id)
     })
 
     // Connetions for group chat Ends here
