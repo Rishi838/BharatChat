@@ -157,13 +157,13 @@ module.exports.SetUpSocketIo = async (io) => {
       await chatController.AddNewMember(io,userId,data,socket.id)
     })
 
-    // Below function is used to leave a grp
+    // Below function is used to leave a grp ✅
 
     socket.on("leave-grp",async(data)=>{
       await chatController.LeaveGroup(io,userId,data,socket.id)
     })
 
-    // Below function is used to delete a grp
+    // Below function is used to delete a grp ✅
     
     socket.on("delete-grp",async(data)=>{
       await chatController.DeleteGroupChat(io,userId,data,socket.id)

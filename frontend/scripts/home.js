@@ -106,7 +106,7 @@ function leave_group(GroupId){
 // Helper function to delete a group(only admin)
 
 function delete_group(GroupId){
-  Socket.emit("delete-grp", { GroupId, Member });
+  Socket.emit("delete-grp", { GroupId});
 }
 
 // Functions through which we listen to response from the server

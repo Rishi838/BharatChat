@@ -29,10 +29,12 @@ module.exports.FetchDetails = async function (
 
 module.exports.SearchUser = async function (io, userId, data, socketId) {
   //  Searching user in the database(which contains that name string)(maximum 8)
+  console.log(data)
 
   const searchResults = await Users.find({
     Name: { $regex: data.Name, $options: "i" },
   });
+  console.log(searchResults)
 
   // Returning top 8 users
 
@@ -305,9 +307,9 @@ module.exports.CreateGroupChat = async function (io, userId, data, socketId) {
   // Looping thorugh active users of the group
 };
 
-// Function to delete a grouo a group(only by admin)
+// Function to delete a grouo a group(only by admin)✅
 
-module.exports.DeleteGroupChat = async function (io, userId, data) {
+module.exports.DeleteGroupChat = async function (io, userId, data,socketId) {
 
   //  Fetching details of chat which has to be deleted
 
