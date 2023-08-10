@@ -109,6 +109,12 @@ function delete_group(GroupId){
   Socket.emit("delete-grp", { GroupId});
 }
 
+// Helper function to change the admin for the grp(admin only)
+
+function change_admin(GroupId,Member){
+  Socket.emit("change-admin",{GroupId,Member})
+}
+
 // Functions through which we listen to response from the server
 
 // Receiving user  details  of the logged user ✅
@@ -260,5 +266,17 @@ Socket.on("group-left-success",(data)=>{
 // Receving ack when someone in the grp left the chat ✅
 
 Socket.on("user-left-grp",(data)=>{
+  console.log(data)
+})
+
+// Receving ack when admin change fails
+
+Socket.on("change-admin-fail",(data)=>{
+  console.log(data)
+})
+
+// Receving ack when admin change succeeds
+
+Socket.on("change-admin-success",(data)=>{
   console.log(data)
 })

@@ -157,6 +157,12 @@ module.exports.SetUpSocketIo = async (io) => {
       await chatController.AddNewMember(io,userId,data,socket.id)
     })
 
+    // Below function is used to change admin
+
+    socket.on("change-admin",async(data)=>{
+      await chatController.ChangeAdmin(io,userId,data,socket.id)
+    })
+
     // Below function is used to leave a grp ✅
 
     socket.on("leave-grp",async(data)=>{

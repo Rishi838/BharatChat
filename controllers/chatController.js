@@ -295,13 +295,14 @@ module.exports.CreateGroupChat = async function (io, userId, data, socketId) {
 
     const receiver = await activeUsers.findOne({ user: key });
 
-
+    if(receiver!=null){
     io.to(receiver.socket).emit("create-group-chat-success", {
       GroupId: new_group_chat._id,
       Name: data.Name,
       Description: data.Description,
       Participants: data.Participants,
     });
+  }
   }
 
   // Looping thorugh active users of the group
@@ -529,3 +530,55 @@ module.exports.ReadGroupMessage = async function (io, userId, data) {
     }
   }
 };
+
+// Function to execute when a user wants to change admin  ✅
+
+module.exports.ChangeAdmin = async function(io,userId,data,socketId){
+
+  // Fetching the chat details
+
+  const grp_chat = await group_chat.findOne({ _id: data.GroupId });
+
+  // Checking if user is admin or not
+
+  if (!userId.equals(grp_chat.Admin)) {
+    io.to(socketId).emit("change-admin-fail", {
+      Message: "You Should be admin to make someone else as admin",
+    });
+    return;
+  }
+
+  if (!grp_chat.Participants.has(data.Member)) {
+    io.to(socketId).emit("change-admin-fail", {
+      Message: "member should be in grp to make him/her as admin",
+    });
+    return;
+  }
+
+  // Changing the admin
+
+  grp_chat.Admin = data.Member
+
+  await grp_chat.save()
+  console.log(grp_chat)
+
+  // Notifying other ppl in grp
+
+  for (const [key, value] of grp_chat.Participants) {
+    // Sending him real time message if a user is online
+
+    const receiver = await activeUsers.findOne({ user: key });
+   
+
+    if (receiver) {
+        
+        // Return success status
+
+        io.to(receiver.socket).emit("change-admin-success", {
+          ChatId: grp_chat._id,
+          Admin : grp_chat.Admin
+        });
+      
+    }
+  }
+}
