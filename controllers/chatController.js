@@ -326,6 +326,7 @@ module.exports.FetchSelfChat = async function (io, userId, socketId) {
   const self_msgs = await self_chat.findOne({ UserId: userId });
 
   // Returning chats to the user
+  console.log("MEssages emitted successfully")
 
   io.to(socketId).emit("self-chat", {
     Messages: self_msgs.Messages,

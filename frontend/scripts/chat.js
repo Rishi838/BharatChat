@@ -55,6 +55,7 @@ function send_self_message(Content) {
 
 function fetch_self_chat() {
   // Fetching the self chat
+  console.log("Sending the self chat command to server")
 
   Socket.emit("fetch-self-chat", {});
 }
@@ -135,13 +136,12 @@ function change_admin(GroupId, Member) {
 
 // Functions through which we listen to response from the server
 
-async function socket_listening (){
 
 // Function to display self chat on web page load and setting active id as the self chatId
 
 Socket.on("user-id", (data) => {
   activeId = data.userId;
-  // console.log(data);
+  console.log(data);
   document.getElementById("chats").innerHTML = `
   <div class="load-3" >        
   <div class="line"></div>
@@ -187,7 +187,7 @@ Socket.on("searched-user", (data) => {
 
 // Receving access token and  then sending it to update cookies api to update the cookies✅
 
-await Socket.on("access-token", async (data) => {
+Socket.on("access-token", async (data) => {
   console.log("Here");
   await postData("/update-access-token", { acessToken: data.accessToken });
 });
@@ -253,6 +253,8 @@ Socket.on("personal-chat", (data) => {
 // Self Chat Listening ✅
 
 Socket.on("self-chat", (data) => {
+
+  console.log("self chat receievd")
   // Removing the loader if there was any
 
   const chatWindow = document.getElementById("chats");
@@ -398,12 +400,6 @@ Socket.on("change-admin-fail", (data) => {
 Socket.on("change-admin-success", (data) => {
   console.log(data);
 });
-
-}
-
-// Executing all socket.on
-
-socket_listening()
 
 
 

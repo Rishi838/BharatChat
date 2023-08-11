@@ -141,6 +141,7 @@ module.exports.SetUpSocketIo = async (io) => {
     // Fetching self chats of a user✅
 
     socket.on("fetch-self-chat",async(data)=>{
+      console.log("Request recived")
       await chatController.FetchSelfChat(io,userId,socket.id);
     })
 
