@@ -1,16 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./frontend/stylesheets/home.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./frontend/stylesheets/home.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <title>Document</title>
-</head>
-<body>
-  Yo Guys  
-  <script src="./frontend/scripts/home.js"></script>
-</body>
+  </head>
+  <body>
+    <main class="app">
+      <aside class="c-sidepanel">
+        <div class="c-panels">
+          <a class="c-panels__logo" id="user-icon">AM</a>
+
+          <nav class="c-panels__navigation">
+            <ul class="c-panels__ul">
+              <li class="c-panels__li">
+                <a class="c-panels__link"  id="search-icon"><i class="fas fa-search"></i>
+                </a>
+              </li>
+              <li class="c-panels__li">
+                <a class="c-panels__link" href="" title=""
+                  ><i class="far fa-dot-circle"></i
+                ></a>
+              </li>
+              <li class="c-panels__li">
+                <a class="c-panels__link" href="" title=""
+                  ><i class="fas fa-chart-bar"></i
+                ></a>
+              </li>
+              <li class="c-panels__li">
+                <a class="c-panels__link" href="" title=""
+                  ><i class="far fa-comments"></i
+                ></a>
+              </li>
+              <li class="c-panels__li">
+                <a class="c-panels__link" href="" title=""
+                  ><i class="fab fa-app-store"></i
+                ></a>
+              </li>
+              <li class="c-panels__li">
+                <a class="c-panels__link" href="" title=""
+                  ><i class="fas fa-asterisk"></i
+                ></a>
+              </li>
+              <li class="c-panels__li">
+                <a class="c-panels__link" href="" title=""
+                  ><i class="fab fa-bandcamp"></i
+                ></a>
+              </li>
+              <li class="c-panels__li">
+                <a class="c-panels__link" href="" title=""
+                  ><i class="far fa-address-book"></i
+                ></a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+         <div class="c-users" id="chat-list" >
+          <input class="c-users__search" type="text" placeholder="Search" />
+
+          <h2 class="c-group-title">Self</h2>
+          <ul class="c-users__people" id="self-chat-list">
+            <!-- Self Chat Will Be Rendered dynamically -->
+           </ul>
+
+          <h2 class="c-group-title">
+            Direct Messages <i class="fas fa-plus"></i>
+          </h2>
+          <ul class="c-users__people" id="personal-chat-list">
+            <!-- Personal Chat List will be displayed dynamically  -->
+           </ul>
+
+          <h2 class="c-group-title">Groups <i class="fas fa-plus"></i></h2>
+          <ul class="c-users__people" id="group-chat-list">
+            <!-- Group Chat List will be rendered dynamically -->
+          </ul>
+        </div> 
+        <div class="c-users" id="search-user" style="display: none;">
+          <input class="c-users__search" id="search-query" type="text" placeholder="Search" />
+          <ul class="c-users__people" id="search-user-list" style="margin-top: 40px;">
+            <!-- Search User List will be displayed dynamically  -->
+           </ul>
+        </div>
+      </aside> 
+      <section class="c-chat">
+        <header class="c-chat__header">
+          <div class="c-chat__title">
+            <h1 id="chat-name"><i class="fas fa-hashtag"></i> </h1>
+            <p id="chat-details"></p>
+            <!-- <button><i class="fas fa-plus"></i> Add Member</button> -->
+          </div>
+          <div class="c-chat__options"></div>
+        </header>
+        <div class="c-chat__window" id="chats">
+                <!--Chats will be fetched dynamically-->
+        </div>
+        <div class="fixed-textarea">
+          <button><i class="fa-solid fa-plus fa-xl" style="color: #ffffff;"></i></button>
+          <textarea placeholder="Type your message..."></textarea>
+          <button><i class="far fa-paper-plane fa-xl" style="color: #f2f2f2; size:25px"></i></button>
+        </div>
+      </section>
+      <div class="c-chat-info">
+        <header class="c-chat__header c-chat__header--left">
+          <div class="c-chat__title">
+            <h2><i class="fas fa-hashtag"></i> Group Info</h2>
+            <p>Created 2/22/2221</p>
+          </div>
+        </header>
+        <div class="c-chat__options">
+          <h2 class="c-group-title">
+            Members <i class="fas fa-chevron-down"></i>
+          </h2>
+          <ul class="c-users__people">
+           <!-- Chat List will be rendered through JS -->
+          </ul>
+
+          <h2 class="c-group-title">
+            Shared Files <i class="fas fa-chevron-right"></i>
+          </h2>
+          <h2 class="c-group-title">
+            Pinned Messages <i class="fas fa-chevron-right"></i>
+          </h2>
+          <h2 class="c-group-title">
+            Starred Files <i class="fas fa-chevron-right"></i>
+          </h2>
+        </div>
+      </div>
+    </main>
+    <script src="./frontend/scripts/home.js"></script>
+    <script src="./frontend/scripts/chat.js"></script>
+  </body>
 </html>
-
-

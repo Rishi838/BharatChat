@@ -67,9 +67,25 @@ module.exports.SetUpSocketIo = async (io) => {
     const already_exits = await activeUsers.findOne({ user: userId });
     if (!already_exits)
       await activeUsers.create({ user: userId, socket: socket.id });
+ 
 
+    // Handling basic functionality of app(Handling things that need to be given to the user when the connection is made to server)
 
-    // Handling basic functionality of app
+    // Returning userId so that he can set the self chat as active and display it
+
+    io.to(socket.id).emit('user-id',{userId,userName})
+
+    // Returning Personal Chats
+
+    const PersonalChatList = await chatController.FetchPersonalChatList(userId)
+
+    io.to(socket.id).emit("personal-chat-list",{PersonalChatList})
+
+    // Returning Group Chats
+
+    const GroupChatList = await chatController.FetchGroupChatList(userId)
+
+    io.to(socket.id).emit("group-chat-list",{GroupChatList})
 
     // Fetching user details ✅
 
@@ -82,7 +98,6 @@ module.exports.SetUpSocketIo = async (io) => {
     socket.on("search-user",async(data)=>{
       await chatController.SearchUser(io,userId,data,socket.id)
     })
-
 
     // Handling personal chats✅
 
