@@ -32,8 +32,10 @@ module.exports.SearchUser = async function (io, userId, data, socketId) {
   const searchResults = await Users.find({
     Name: { $regex: data.Name, $options: "i" },
   },{
-    _id : 1, Name :1
+    _id : 1, Name :1 , Email : 1
   });
+
+
   // Returning top 8 users
 
   const search_users = searchResults.splice(0, 8);

@@ -46,7 +46,7 @@ module.exports.SetUpSocketIo = async (io) => {
 
   // Establishing Connection with the server side socketIo
 
-  await io.on("connection", async (socket) => {
+   await io.on("connection", async (socket) => {
 
     // Before Establishing connection, making sure that user has an active access token set in his cookies(web) or shared preference(application)
 
@@ -77,15 +77,15 @@ module.exports.SetUpSocketIo = async (io) => {
 
     // Returning Personal Chats
 
-    const PersonalChatList = await chatController.FetchPersonalChatList(userId)
-
-    io.to(socket.id).emit("personal-chat-list",{PersonalChatList})
+    // const PersonalChatList = await chatController.FetchPersonalChatList(userId)
+    
+    io.to(socket.id).emit("personal-chat-list",{})
 
     // Returning Group Chats
 
-    const GroupChatList = await chatController.FetchGroupChatList(userId)
+    // const GroupChatList = await chatController.FetchGroupChatList(userId)
 
-    io.to(socket.id).emit("group-chat-list",{GroupChatList})
+    io.to(socket.id).emit("group-chat-list",{})
 
     // Fetching user details ✅
 
