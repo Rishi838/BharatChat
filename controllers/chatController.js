@@ -47,7 +47,7 @@ module.exports.SearchUser = async function (io, userId, data, socketId) {
 
 // Fetch Personal Chats
 
-module.exports.FetchPersonalChatList = async function (userId) {
+module.exports.FetchPersonalChatList = async function (io,userId,socketId) {
  
 
   //  Searching all the chats user is involved in on the basis of the timestamp
@@ -89,12 +89,12 @@ module.exports.FetchPersonalChatList = async function (userId) {
       Unread : undreadCount
     };
   }));
-  return simplifiedChatList;
+  io.to(socketId).emit("personal-chat-list",{PersonalChatList: simplifiedChatList})
 };
 
 // Fetch grp chat list
 
-module.exports.FetchGroupChatList = async function (userId) {
+module.exports.FetchGroupChatList = async function (io,userId,socketId) {
  
 
   //  Searching all the chats user is involved in on the basis of the timestamp
@@ -122,7 +122,8 @@ module.exports.FetchGroupChatList = async function (userId) {
         Unread : undreadCount
       };
     });
-    return simplifiedChatList;
+
+    io.to(socketId).emit("group-chat-list",{GroupChatList : simplifiedChatList})
 };
 
 // Personal Chat Controllers ✅
@@ -327,8 +328,8 @@ module.exports.FetchSelfChat = async function (io, userId, socketId) {
 
   const self_msgs = await self_chat.findOne({ UserId: userId });
 
+
   // Returning chats to the user
-  console.log("MEssages emitted successfully")
 
   io.to(socketId).emit("self-chat", {
     Messages: self_msgs.Messages,

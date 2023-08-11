@@ -271,6 +271,7 @@ Socket.on("self-chat", (data) => {
   document.getElementById("chat-details").innerHTML = "Self";
 
   const messages = data.Messages;
+  console.log(messages)
   var x = "";
   for (let i = 0; i < messages.length; i++) {
     const utcDate = new Date(messages[i].Timestamp);
@@ -287,9 +288,9 @@ Socket.on("self-chat", (data) => {
   </div>
     `;
   }
-
+  console.log(x)
   document.getElementById("chats").innerHTML = x;
-  // console.log(document.getElementById("chats"));
+  console.log(document.getElementById("chats"));
 });
 
 // Group Chat Listening

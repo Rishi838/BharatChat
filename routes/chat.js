@@ -76,16 +76,12 @@ module.exports.SetUpSocketIo = async (io) => {
     io.to(socket.id).emit('user-id',{userId,userName})
 
     // Returning Personal Chats
-
-    // const PersonalChatList = await chatController.FetchPersonalChatList(userId)
     
-    io.to(socket.id).emit("personal-chat-list",{})
+    chatController.FetchPersonalChatList(io,userId,socket.id)
 
     // Returning Group Chats
-
-    // const GroupChatList = await chatController.FetchGroupChatList(userId)
-
-    io.to(socket.id).emit("group-chat-list",{})
+  
+    chatController.FetchGroupChatList(io,userId,socket.id)
 
     // Fetching user details ✅
 
@@ -141,7 +137,6 @@ module.exports.SetUpSocketIo = async (io) => {
     // Fetching self chats of a user✅
 
     socket.on("fetch-self-chat",async(data)=>{
-      console.log("Request recived")
       await chatController.FetchSelfChat(io,userId,socket.id);
     })
 
