@@ -67,7 +67,7 @@
            </ul>
 
           <h2 class="c-group-title">
-            Direct Messages <i class="fas fa-plus"></i>
+            Direct Messages
           </h2>
           <ul class="c-users__people" id="personal-chat-list">
             <!-- Personal Chat List will be displayed dynamically  -->
@@ -88,33 +88,53 @@
       <section class="c-chat">
         <header class="c-chat__header">
           <div class="c-chat__title">
-            <h1 id="chat-name"><i class="fas fa-hashtag"></i> </h1>
-            <p id="chat-details"></p>
-            <!-- <button><i class="fas fa-plus"></i> Add Member</button> -->
+            <h1 id="chat-name"><i class="fas fa-hashtag"></i><!--Name will be fetched dynamically--> </h1>
+            <p id="chat-details"><!--Details will be fetched dynamically--> </p>
+            <!-- <button id="add-member" style="display: none;"><i class="fas fa-plus"></i> Add Member</button> -->
           </div>
           <div class="c-chat__options"></div>
         </header>
-        <div class="c-chat__window" id="chats">
+        <div class="c-chat__window" id="chats" >
                 <!--Chats will be fetched dynamically-->
         </div>
-        <div class="fixed-textarea">
-          <button><i class="fa-solid fa-plus fa-xl" style="color: #ffffff;"></i></button>
-          <textarea placeholder="Type your message..."></textarea>
-          <button><i class="far fa-paper-plane fa-xl" style="color: #f2f2f2; size:25px"></i></button>
+        <div class="chat-input-wrapper" id="msg-area">
+          <button class="chat-attachment-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-paperclip" viewBox="0 0 24 24">
+              <defs/>
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+            </svg>
+          </button>
+          <div class="input-wrapper">
+            <input type="text" class="chat-input" id="xx" placeholder="Enter your message here">
+            <button class="emoji-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-smile" viewBox="0 0 24 24">
+              <defs/>
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>
+            </svg>
+          </button>
+          </div>
+          <button id="send" class="chat-send-btn">Send</button>
         </div>
+      </div>
+        
+       <!-- Things to display when we are creating new things -->
+
+        <div id="start-chat-text" style="display:none ; color:rgb(233, 224, 224);position:fixed;left:43vw;bottom:50vh">Start your conversation by saying Hello<img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="35"></div>
+        <button id="start-chat-btn" class="btn third" style="display:none;position:fixed; bottom:10px;left:45vw">Start Chat</button>
       </section>
       <div class="c-chat-info">
         <header class="c-chat__header c-chat__header--left">
           <div class="c-chat__title">
-            <h2><i class="fas fa-hashtag"></i> Group Info</h2>
-            <p>Created 2/22/2221</p>
+            <h2 id="chat-title-info"></h2>
+            <p id="time-info">Created 2/22/2221</p>
           </div>
         </header>
         <div class="c-chat__options">
           <h2 class="c-group-title">
             Members <i class="fas fa-chevron-down"></i>
           </h2>
-          <ul class="c-users__people">
+          <ul class="c-users__people" id="member-list">
            <!-- Chat List will be rendered through JS -->
           </ul>
 

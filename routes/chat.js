@@ -95,6 +95,12 @@ module.exports.SetUpSocketIo = async (io) => {
       await chatController.SearchUser(io,userId,data,socket.id)
     })
 
+    // Check chat between two users
+
+    socket.on("check-chat",async(data)=>{
+      await chatController.CheckChat(io,userId,data,socket.id)
+    })
+
     // Handling personal chats✅
 
     // Below function is used to deal when user wants to create a new chat✅
@@ -106,7 +112,7 @@ module.exports.SetUpSocketIo = async (io) => {
     // Below function is used to  deal when user sends a personal message to another user✅
 
     socket.on("send-personal-message", async (data) => {
-      await chatController.SendPersonalMessage(io, userId, data);
+      await chatController.SendPersonalMessage(io, userId,userName, data);
     });
 
     // Below function is used by server to acknowledge read messages by the user✅
@@ -118,7 +124,7 @@ module.exports.SetUpSocketIo = async (io) => {
   //  Below function is used by server to personal chat of the user ✅
 
     socket.on("fetch-personal-chat",async(data)=>{
-      await chatController.FetchPersonalChat(io,data,socket.id);
+      await chatController.FetchPersonalChat(io,userId,data,socket.id);
     })
 
     // All Connections for personal chat Ends Here
@@ -137,7 +143,7 @@ module.exports.SetUpSocketIo = async (io) => {
     // Fetching self chats of a user✅
 
     socket.on("fetch-self-chat",async(data)=>{
-      await chatController.FetchSelfChat(io,userId,socket.id);
+      await chatController.FetchSelfChat(io,userId,userName,socket.id);
     })
 
     // Connections for self chat ends here
@@ -153,7 +159,7 @@ module.exports.SetUpSocketIo = async (io) => {
     // Below function listens to request when user wants to send a message in the group ✅
 
     socket.on("send-group-message", async (data) => {
-      await chatController.SendGroupMessage(io, userId, data);
+      await chatController.SendGroupMessage(io, userId,userName, data);
     });
 
     // Below function is used to listen to request when a user in group reads a message ✅
@@ -184,6 +190,12 @@ module.exports.SetUpSocketIo = async (io) => {
     
     socket.on("delete-grp",async(data)=>{
       await chatController.DeleteGroupChat(io,userId,data,socket.id)
+    })
+
+    // Below function is used to fetch grp chat
+
+    socket.on("fetch-group-chat",async(data)=>{
+      await chatController.FetchGroupChat(io,userId,data,socket.id)
     })
 
     // Connetions for group chat Ends here
