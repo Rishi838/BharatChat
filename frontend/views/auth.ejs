@@ -1,68 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="./frontend/stylesheets/auth.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
-</head>
-<body>
-    <h2>BharatChat-Authentication</h2>
-<div class="container" id="container">
-	<div class="form-container sign-up-container">
-		<div class="form">
-			<h1>Create Account</h1>
-			<div class="social-container">
-				<a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-				<a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-				<a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
-			</div>
-			<span>or use your email for registration</span>
-			<input type="text" id="signup_name" placeholder="Username" />
-            <div class ="error" id="signup_name_error"></div>
-			<input type="email" id="signup_email" placeholder="Email" />
-            <div class ="error" id="signup_email_error"></div>
-			<input type="password" id="signup_pass"placeholder="Password" />
-            <div class ="error" id="signup_pass_error"></div>
-			<button id="signup">Sign Up</button>
-            <div class ="error" id="signup_credentials_error"></div>
-		</div>
-	</div>
-	<div class="form-container sign-in-container">
-		<div class="form">
-			<h1>Sign in</h1>
-			<div class="social-container">
-				<a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-				<a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-				<a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
-			</div>
-			<span>or use your account</span>
-			<input type="email" id="login_email_id" placeholder="Email" />
-            <div class ="error" id="login_email_error"></div>
-			<input type="password" id="login_password" placeholder="Password">
-            <div class ="error" id="login_pass_error"></div>
-			<a href="#">Forgot your password?</a>
-			<button id="login">Sign In</button>
-            <div class ="error" id="login_credentials_error"></div>
-		</div>
-	</div>
-	<div class="overlay-container">
-		<div class="overlay">
-			<div class="overlay-panel overlay-left">
-				<h1>Welcome Back!</h1>
-				<p>To keep connected with us please login with your personal info</p>
-				<button class="ghost" id="signIn">Sign In</button>
-			</div>
-			<div class="overlay-panel overlay-right">
-				<h1>Hello, Friend!</h1>
-				<p>Enter your personal details and start journey with us</p>
-				<button class="ghost" id="signUp">Sign Up</button>
-			</div>
-		</div>
-	</div>
-</div>
-<script type="module"src="./frontend/scripts/auth.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ExpressChat-Authentication</title>
+    <link rel="stylesheet" href="./frontend/stylesheets/auth.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="./frontend/stylesheets/Logo.png">
+  </head>
+  <body>
+    <div id="container" class="container">
+      <!-- FORM SECTION -->
+      <div class="row">
+        <!-- SIGN UP -->
+        <div class="col align-items-center flex-col sign-up">
+          <div class="form-wrapper align-items-center">
+            <div class="form sign-up">
+              <div class="input-group">
+                <i class="bx bxs-user"></i>
+                <input type="text" id="signup_name" placeholder="Username" />
+                <div class ="error" id="signup_name_error"></div>
+              </div>
+              <div class="input-group">
+                <i class="bx bx-mail-send"></i>
+                <input type="email" id="signup_email" placeholder="Email" />
+                <div class ="error" id="signup_email_error"></div>
+              </div>
+              <div class="input-group">
+                <i class="bx bxs-lock-alt"></i>
+                <input type="password" id="signup_pass" placeholder="Password" />
+                <div class ="error" id="signup_pass_error"></div>
+              </div>
+
+              <button id="signup">Sign up</button>
+              <div class ="error" id="signup_credentials_error"></div>
+              <p>
+                <span> Already have an account? </span>
+                <b onclick="toggle()" class="pointer"> Sign in here </b>
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- END SIGN UP -->
+        <!-- SIGN IN -->
+        <div class="col align-items-center flex-col sign-in">
+          <div class="form-wrapper align-items-center">
+            <div class="form sign-in">
+              <div class="input-group">
+                <i class="bx bxs-user"></i>
+                <input type="text" id="login_email_id"placeholder="Email" />
+                <div class ="error" id="login_email_error"></div>
+              </div>
+              <div class="input-group">
+                <i class="bx bxs-lock-alt"></i>
+                <input type="password" id="login_password"placeholder="Password" />
+                <div class ="error" id="login_pass_error"></div>
+              </div>
+              <button id="login">Sign in</button>
+              <div class ="error" id="login_credentials_error"></div>
+              <p>
+                <b> Forgot password? </b>
+              </p>
+              <p>
+                <span> Don't have an account? </span>
+                <b onclick="toggle()" class="pointer"> Sign up here </b>
+              </p>
+            </div>
+          </div>
+          <div class="form-wrapper"></div>
+        </div>
+        <!-- END SIGN IN -->
+      </div>
+      <!-- END FORM SECTION -->
+      <!-- CONTENT SECTION -->
+      <div class="row content-row">
+        <!-- SIGN IN CONTENT -->
+        <div class="col align-items-center flex-col">
+          <div class="text sign-in">
+            <h2>Welcome</h2>
+          </div>
+          <div class="img sign-in"></div>
+        </div>
+        <!-- END SIGN IN CONTENT -->
+        <!-- SIGN UP CONTENT -->
+        <div class="col align-items-center flex-col">
+          <div class="img sign-up"></div>
+          <div class="text sign-up">
+            <h2>Join with us</h2>
+          </div>
+        </div>
+        <!-- END SIGN UP CONTENT -->
+      </div>
+      <!-- END CONTENT SECTION -->
+    </div>
+    <script  src="./frontend/scripts/auth.js"></script>
+  </body>
 </html>

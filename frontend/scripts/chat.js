@@ -59,7 +59,8 @@ var activeType = "Self";
 var UserName;
 var UserId;
 var searchId;
-var Members = []; // This is
+var Members = []; // This is to know which members to add in grp
+var sound = document.getElementById("notificationSound");
 
 // Event Listner when a user profile is clicked after searching
 
@@ -257,6 +258,16 @@ function remove_member(id) {
 
 const Socket = io("https://bharatchat.onrender.com");
 
+// Suppose that connection was not made due to non authentication
+
+Socket.on("auth-failure", (data) => {
+  console.log("Authentication failed:", data.reason);
+  // Redirect the user to the authentication page
+  window.location.href = "/auth";
+});
+
+
+
 // Helper functions by which we send requests to the server
 
 // Helper function  add  a new member to the grp(only by admin)✅
@@ -436,6 +447,7 @@ Socket.on("create-personal-chat-creator", (data) => {
     ChatId: data.ChatId,
     Partner: data.Partner,
   });
+  sound.play()
 
   document.getElementById("start-chat-text").style.display = "none";
   document.getElementById("start-chat-btn").style.display = "none";
@@ -475,7 +487,7 @@ Socket.on("create-personal-chat-partner", (data) => {
 
   const new_chat = `<li class="c-users__person" id="${data.ChatId}">${data.Partner}
    <span class="unread-count" id="${data.ChatId}Count"></span></li>`;
-
+   sound.play()
   document
     .getElementById("personal-chat-list")
     .insertAdjacentHTML("afterbegin", new_chat);
@@ -529,6 +541,7 @@ Socket.on("receive-personal-message", (data) => {
 
     Socket.emit("read-personal-message", { ChatId });
   } else {
+    sound.play()
     // Increasing the unread count for that chat in real time
     const UnreadCount = document.getElementById(`${ChatId}Count`).innerHTML;
     if (UnreadCount == "") {
@@ -692,7 +705,7 @@ Socket.on("group-chat-list", (data) => {
 Socket.on("create-group-chat-creator", (data) => {
   //  Clearing out the Messages array (we can also disable the button)
   Messages = [];
-
+  sound.play()
   // Setting activeId and Type
   activeId = data.GroupId;
   activeType = "Group";
@@ -722,7 +735,7 @@ Socket.on("create-group-chat-creator", (data) => {
 
 Socket.on("create-group-chat-receiver", (data) => {
   //  Displaying new chat in the top of grp chat list
-
+  sound.play()
   const new_chat = `<li class="c-users__person" id="${data.GroupId}">${data.Name}<span class="unread-count" id="${data.GroupId}Count"></span></li>`;
 
   document
@@ -775,6 +788,7 @@ Socket.on("receive-group-message", (data) => {
 
     Socket.emit("read-group-message", { GroupId: ChatId });
   } else {
+    sound.play()
     // Increasing the unread count for that chat in real time
     const UnreadCount = document.getElementById(`${ChatId}Count`).innerHTML;
     if (UnreadCount == "") {
