@@ -15,14 +15,20 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap"
       rel="stylesheet"
     />
-    <link rel="icon" type="image/png" href="./frontend/stylesheets/Logo.png">
+    <link rel="icon" type="image/png" href="./frontend/stylesheets/Logo.png" />
     <title>ExpressChat - Converse, Connect, Create Memories.</title>
   </head>
   <body>
-    <audio id="notificationSound">
-      <source src="./frontend/stylesheets/msg_sound.mp3" type="audio/mpeg">
-  </audio>
-  
+    <audio id="new-msg-sound">
+      <source src="./frontend/stylesheets/msg_sound.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="chat-sound">
+      <source src="./frontend/stylesheets/msg_sound.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="send-sound">
+      <source src="./frontend/stylesheets/msg_sound.mp3" type="audio/mpeg" />
+    </audio>
+
     <main class="app">
       <aside class="c-sidepanel">
         <div class="c-panels">
@@ -204,7 +210,6 @@
             <div class="c-chat__title">
               <h2 id="chat-title-info"></h2>
               <p id="info"></p>
-              
             </div>
           </header>
           <div class="c-chat__options">
@@ -223,7 +228,6 @@
             <h2 class="c-group-title">
               Starred Files <i class="fas fa-chevron-right"></i>
             </h2>
-            
           </div>
         </div>
         <div id="create-grp" style="display: none">

@@ -60,7 +60,9 @@ var UserName;
 var UserId;
 var searchId;
 var Members = []; // This is to know which members to add in grp
-var sound = document.getElementById("notificationSound");
+var sound = document.getElementById("new-msg-sound");
+var chat = document.getElementById("chat-sound");
+var send = document.getElementById("send-sound");
 
 // Event Listner when a user profile is clicked after searching
 
@@ -137,7 +139,7 @@ function chat_opener(type, id, Partner) {
 
 function send_msg(type, id, Content) {
   //  Making out the new msg
-
+  send.play()
   const new_msg = `
      <div class="c-chat__msg">
     <span class="c-chat__icon"></span>
@@ -265,8 +267,6 @@ Socket.on("auth-failure", (data) => {
   // Redirect the user to the authentication page
   window.location.href = "/auth";
 });
-
-
 
 // Helper functions by which we send requests to the server
 
@@ -447,7 +447,7 @@ Socket.on("create-personal-chat-creator", (data) => {
     ChatId: data.ChatId,
     Partner: data.Partner,
   });
-  sound.play()
+  sound.play();
 
   document.getElementById("start-chat-text").style.display = "none";
   document.getElementById("start-chat-btn").style.display = "none";
@@ -487,7 +487,7 @@ Socket.on("create-personal-chat-partner", (data) => {
 
   const new_chat = `<li class="c-users__person" id="${data.ChatId}">${data.Partner}
    <span class="unread-count" id="${data.ChatId}Count"></span></li>`;
-   sound.play()
+  sound.play();
   document
     .getElementById("personal-chat-list")
     .insertAdjacentHTML("afterbegin", new_chat);
@@ -522,7 +522,7 @@ Socket.on("receive-personal-message", (data) => {
 
   if (ChatId == activeId) {
     //  Displaying chat in real time and also sending server about user reading it
-
+    chat.play()
     const new_msg = `
      <div class="c-chat__msg">
     <span class="c-chat__icon"></span>
@@ -541,7 +541,7 @@ Socket.on("receive-personal-message", (data) => {
 
     Socket.emit("read-personal-message", { ChatId });
   } else {
-    sound.play()
+    sound.play();
     // Increasing the unread count for that chat in real time
     const UnreadCount = document.getElementById(`${ChatId}Count`).innerHTML;
     if (UnreadCount == "") {
@@ -705,7 +705,7 @@ Socket.on("group-chat-list", (data) => {
 Socket.on("create-group-chat-creator", (data) => {
   //  Clearing out the Messages array (we can also disable the button)
   Messages = [];
-  sound.play()
+  sound.play();
   // Setting activeId and Type
   activeId = data.GroupId;
   activeType = "Group";
@@ -735,7 +735,7 @@ Socket.on("create-group-chat-creator", (data) => {
 
 Socket.on("create-group-chat-receiver", (data) => {
   //  Displaying new chat in the top of grp chat list
-  sound.play()
+  sound.play();
   const new_chat = `<li class="c-users__person" id="${data.GroupId}">${data.Name}<span class="unread-count" id="${data.GroupId}Count"></span></li>`;
 
   document
@@ -769,7 +769,7 @@ Socket.on("receive-group-message", (data) => {
 
   if (ChatId == activeId) {
     //  Displaying chat in real time and also sending server about user reading it
-
+   chat.play()
     const new_msg = `
       <div class="c-chat__msg">
      <span class="c-chat__icon"></span>
@@ -788,7 +788,7 @@ Socket.on("receive-group-message", (data) => {
 
     Socket.emit("read-group-message", { GroupId: ChatId });
   } else {
-    sound.play()
+    sound.play();
     // Increasing the unread count for that chat in real time
     const UnreadCount = document.getElementById(`${ChatId}Count`).innerHTML;
     if (UnreadCount == "") {
@@ -960,17 +960,16 @@ Socket.on("kicked-out", (data) => {
 
 // Function to handle when someone else was kicked out of the group
 
-Socket.on("someone-kicked-out",(data)=>{
-
-  if(activeId == data.GroupId){
-  createNotification(
-    `Someone was kicked out of ${data.GroupName}`,
-    "success_notification",
-    1000
-  );
-  Socket.emit("fetch-group-chat", { GroupId: data.GroupId });
+Socket.on("someone-kicked-out", (data) => {
+  if (activeId == data.GroupId) {
+    createNotification(
+      `Someone was kicked out of ${data.GroupName}`,
+      "success_notification",
+      1000
+    );
+    Socket.emit("fetch-group-chat", { GroupId: data.GroupId });
   }
-})
+});
 
 // Function to fetch group chat(most difficult part)
 
