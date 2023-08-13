@@ -8,10 +8,9 @@ const Users = require("../models/user");
 // Helper functions
 
 async function fetchParticipantName(userId) {
-  const user = await Users.findOne({_id:userId})
-  return user.Name
+  const user = await Users.findOne({ _id: userId });
+  return user.Name;
 }
-
 
 // Basic controller functions
 
@@ -37,27 +36,42 @@ module.exports.FetchDetails = async function (
 
 module.exports.SearchUser = async function (io, userId, data, socketId) {
   //  Searching user in the database(which contains that name string)(maximum 8)
-  const searchResults = await Users.find({
-    Name: { $regex: data.Name, $options: "i" },
-  },{
-    _id : 1, Name :1 , Email : 1
-  });
+  const searchResults = await Users.find(
+    {
+      Name: { $regex: data.Name, $options: "i" },
+    },
+    {
+      _id: 1,
+      Name: 1,
+      Email: 1,
+    }
+  );
 
+  // if the socket is being called through the search user
 
-  // Returning top 8 users
+  if (data.Type === "Search") {
+    // Returning top 8 users
 
-  const search_users = searchResults.splice(0, 8);
+    const search_users = searchResults.splice(0, 8);
 
-  io.to(socketId).emit("searched-user", {
-    Users: search_users,
-  });
+    io.to(socketId).emit("searched-user", {
+      Users: search_users,
+    });
+    ``;
+  } else if (data.Type === "Add") {
+    // Returning top 3 users
+
+    const search_users = searchResults.splice(0, 3);
+
+    io.to(socketId).emit("added-user-match", {
+      Users: search_users,
+    });
+  }
 };
 
 // Fetch Personal Chats
 
-module.exports.FetchPersonalChatList = async function (io,userId,socketId) {
- 
-
+module.exports.FetchPersonalChatList = async function (io, userId, socketId) {
   //  Searching all the chats user is involved in on the basis of the timestamp
 
   const chat_list = await personal_chat
@@ -69,42 +83,42 @@ module.exports.FetchPersonalChatList = async function (io,userId,socketId) {
     )
     .sort({ LastChat: -1 });
 
-  
   // Modifying the chat list according to the details we need like partner, unread count , chatId and TimeStamp
 
   // Using Promise.all method to resolve all promises in the array
 
-  const simplifiedChatList = await Promise.all(chat_list.map(async(chat) => {
-    var otherParticipantId = userId;
-    var undreadCount;
-    for (const [key, value] of chat.Participants) {
-      if (!userId.equals(key)) {
-        otherParticipantId = key;
+  const simplifiedChatList = await Promise.all(
+    chat_list.map(async (chat) => {
+      var otherParticipantId = userId;
+      var undreadCount;
+      for (const [key, value] of chat.Participants) {
+        if (!userId.equals(key)) {
+          otherParticipantId = key;
+        } else {
+          undreadCount = value;
+        }
       }
-      else{
-        undreadCount = value;
-      }
-    }
 
-    // Fetching Name of Person associated with that user
+      // Fetching Name of Person associated with that user
 
-    const User_details = await Users.findOne({_id : otherParticipantId})
+      const User_details = await Users.findOne({ _id: otherParticipantId });
 
-    return {
-      _id: chat._id,
-      LastChat: chat.LastChat,
-      Partner: User_details.Name,
-      Unread : undreadCount
-    };
-  }));
-  io.to(socketId).emit("personal-chat-list",{PersonalChatList: simplifiedChatList})
+      return {
+        _id: chat._id,
+        LastChat: chat.LastChat,
+        Partner: User_details.Name,
+        Unread: undreadCount,
+      };
+    })
+  );
+  io.to(socketId).emit("personal-chat-list", {
+    PersonalChatList: simplifiedChatList,
+  });
 };
 
 // Fetch grp chat list
 
-module.exports.FetchGroupChatList = async function (io,userId,socketId) {
- 
-
+module.exports.FetchGroupChatList = async function (io, userId, socketId) {
   //  Searching all the chats user is involved in on the basis of the timestamp
 
   const chat_list = await group_chat
@@ -112,33 +126,35 @@ module.exports.FetchGroupChatList = async function (io,userId,socketId) {
       {
         $and: [{ [`Participants.${userId}`]: { $exists: true } }],
       },
-      { _id: 1, Name:1, Participants:1, LastChat: 1 }
+      { _id: 1, Name: 1, Participants: 1, LastChat: 1 }
     )
     .sort({ LastChat: -1 });
-    const simplifiedChatList = chat_list.map((chat) => {
-      var undreadCount;
-      for (const [key, value] of chat.Participants) {
-        if (userId.equals(key)) {
-          undreadCount = value
-          break
-        }
+  const simplifiedChatList = chat_list.map((chat) => {
+    var undreadCount;
+    for (const [key, value] of chat.Participants) {
+      if (userId.equals(key)) {
+        undreadCount = value;
+        break;
       }
-      return {
-        _id: chat._id,
-        Name:chat.Name,
-        LastChat: chat.LastChat,
-        Unread : undreadCount
-      };
-    });
+    }
+    return {
+      _id: chat._id,
+      Name: chat.Name,
+      LastChat: chat.LastChat,
+      Unread: undreadCount,
+    };
+  });
 
-    io.to(socketId).emit("group-chat-list",{GroupChatList : simplifiedChatList})
+  io.to(socketId).emit("group-chat-list", {
+    GroupChatList: simplifiedChatList,
+  });
 };
 
 // Personal Chat Controllers ✅
 
-// Check whther a personal Chat Exists betwwen the two users 
+// Check whther a personal Chat Exists betwwen the two users
 
-module.exports.CheckChat = async function(io,userId,data,socketId){
+module.exports.CheckChat = async function (io, userId, data, socketId) {
   const chat_check = await personal_chat.findOne({
     $and: [
       { [`Participants.${userId}`]: { $exists: true } },
@@ -147,15 +163,21 @@ module.exports.CheckChat = async function(io,userId,data,socketId){
   });
   // Finding the name of the participant who will be partner
 
-  const partner = await Users.findOne({_id: data.Receiver})
+  const partner = await Users.findOne({ _id: data.Receiver });
 
-  if(chat_check){
-  io.to(socketId).emit("create-chat-result",{Exists:1,ChatId : chat_check._id,Partner : partner.Name})
+  if (chat_check) {
+    io.to(socketId).emit("create-chat-result", {
+      Exists: 1,
+      ChatId: chat_check._id,
+      Partner: partner.Name,
+    });
+  } else {
+    io.to(socketId).emit("create-chat-result", {
+      Exists: 0,
+      Partner: partner.Name,
+    });
   }
-  else{
-    io.to(socketId).emit("create-chat-result",{Exists:0, Partner : partner.Name})
-  }
-}
+};
 
 // Creating Personal chat between two users ✅
 
@@ -201,7 +223,12 @@ module.exports.CreatePersonalChat = async function (
 
 // Handle case when user sends a mesage to someone✅
 
-module.exports.SendPersonalMessage = async function (io, userId, userName,data) {
+module.exports.SendPersonalMessage = async function (
+  io,
+  userId,
+  userName,
+  data
+) {
   console.log("Message Received ,", data.ChatId, data.Content);
   // Fetching chatId
   const chatId = data.ChatId;
@@ -252,7 +279,7 @@ module.exports.SendPersonalMessage = async function (io, userId, userName,data) 
     io.to(receiver.socket).emit("receive-personal-message", {
       ChatId: chatId,
       Content: data.Content,
-      Sender : userName,
+      Sender: userName,
     });
   }
 };
@@ -300,20 +327,20 @@ module.exports.ReadPersonalMessage = async function (io, userId, data) {
 
 // Fetching personal chat messages ✅
 
-module.exports.FetchPersonalChat = async function (io,userId, data, socketId) {
+module.exports.FetchPersonalChat = async function (io, userId, data, socketId) {
   // Fetching personal chat between the users
 
   const personal_msgs = await personal_chat.findOne({ _id: data.ChatId });
- 
+
   // Finding the name of the user who is asking for chat
-  const userName = await Users.findOne({_id: userId})
+  const userName = await Users.findOne({ _id: userId });
 
   // Returning it to socket demanding it
   io.to(socketId).emit("personal-chat", {
     Messages: personal_msgs.Messages,
-    UserId : userId,
-    User : userName.Name,
-    Partner : data.Partner
+    UserId: userId,
+    User: userName.Name,
+    Partner: data.Partner,
   });
 };
 
@@ -340,35 +367,22 @@ module.exports.SendSelfMessage = async function (io, userId, data) {
 
 // Fetching self chat ✅
 
-module.exports.FetchSelfChat = async function (io, userId,userName, socketId) {
+module.exports.FetchSelfChat = async function (io, userId, userName, socketId) {
   // Searching for user in self chat database
 
   const self_msgs = await self_chat.findOne({ UserId: userId });
-  
 
   // Returning chats to the user
 
   io.to(socketId).emit("self-chat", {
     Messages: self_msgs.Messages,
-    Name : userName
+    Name: userName,
   });
 };
 
 // Function to create group chat(Constraint on group is that it should have min 2 participant) ✅
 
 module.exports.CreateGroupChat = async function (io, userId, data, socketId) {
-  // Checking whether number of participants is greater than 2 or not and other things like name is provided or not
-
-  if (data.Name == null || data.Name == "" || data.Participants.length < 2) {
-    //  Emitting false status to the user trying to create a group
-
-    io.to(socketId).emit("create-group-chat-fail", {
-      Message:
-        "Group Chat fail as Name is not provided or Participants are less than 3",
-    });
-    return;
-  }
-
   // Creating participants map with unread count as 0
 
   const ParticipantsMap = new Map();
@@ -387,19 +401,24 @@ module.exports.CreateGroupChat = async function (io, userId, data, socketId) {
     LastChat: Date.now(),
   });
 
-  // After the group has been created send a success message to all members in the grp
+  // After the group has been created send a success message
+
+  // Differnt success message to the creator of group
+
+  io.to(socketId).emit("create-group-chat-creator", {
+    GroupId: new_group_chat._id,
+    Name: data.Name,
+  });
 
   for (const [key, value] of new_group_chat.Participants) {
     // Sending him real time message if a user is online
 
     const receiver = await activeUsers.findOne({ user: key });
 
-    if (receiver != null) {
-      io.to(receiver.socket).emit("create-group-chat-success", {
+    if (receiver != null && key != userId) {
+      io.to(receiver.socket).emit("create-group-chat-receiver", {
         GroupId: new_group_chat._id,
         Name: data.Name,
-        Description: data.Description,
-        Participants: data.Participants,
       });
     }
   }
@@ -414,31 +433,23 @@ module.exports.DeleteGroupChat = async function (io, userId, data, socketId) {
 
   const grp_chat = await group_chat.findOne({ _id: data.GroupId });
 
-  // Checking wthether the user is admin to delte the grp or not
+  io.to(socketId).emit("delete-group-chat-creator",{
+    GroupId: grp_chat._id
+  })
 
-  if (!userId.equals(grp_chat.Admin)) {
-    //  Returning fail status if he is not the admin
+  for (const [key, value] of grp_chat.Participants) {
+    // Sending him real time message if a user is online
 
-    io.to(socketId).emit("delete-grp-fail", {
-      Message: "Cannot delete grp as this person is not the admin og grp",
-    });
-  } else {
-    // Else sending the message to all regarding deletion of grp and deleting it from the db
-
-    for (const [key, value] of grp_chat.Participants) {
-      // Sending him real time message if a user is online
-
-      const receiver = await activeUsers.findOne({ user: key });
-
-      io.to(receiver.socket).emit("delete-grp-success", {
+    const receiver = await activeUsers.findOne({ user: key });
+    if (receiver && key != userId) {
+      io.to(receiver.socket).emit("delete-grp-success-receiver", {
         GroupId: grp_chat._id,
       });
     }
-
+  }
     // Deleting the group
 
     await group_chat.deleteOne({ _id: grp_chat._id });
-  }
 };
 
 // Function to add a new member to group(only by admin) ✅
@@ -500,7 +511,6 @@ module.exports.LeaveGroup = async function (io, userId, data, socketId) {
   // Handle the case to delete the grp if user is admin;
 
   const grp_chat = await group_chat.findOne({ _id: data.GroupId });
-  console.log(grp_chat);
 
   if (userId.equals(grp_chat.Admin)) {
     //  If admin is asking to leave the grp, then asking him to first change the admin
@@ -510,11 +520,7 @@ module.exports.LeaveGroup = async function (io, userId, data, socketId) {
       Message: "As You were admin, Please make someone else admin before leaving the grp";
     }
   } else {
-    console.log("Here");
-    console.log(userId);
-    console.log(grp_chat.Participants.has(userId.toString()));
     if (grp_chat.Participants.has(userId.toString())) {
-      console.log("Here");
       // Leaving the group
 
       grp_chat.Participants.delete(userId);
@@ -533,11 +539,12 @@ module.exports.LeaveGroup = async function (io, userId, data, socketId) {
         // Sending him real time message if a user is online
 
         const receiver = await activeUsers.findOne({ user: key });
-
-        io.to(receiver.socket).emit("user-left-grp", {
-          GroupId: grp_chat._id,
-          User: userId,
-        });
+        if (receiver) {
+          io.to(receiver.socket).emit("user-left-grp", {
+            GroupId: grp_chat._id,
+            User: userId,
+          });
+        }
       }
     }
   }
@@ -545,7 +552,7 @@ module.exports.LeaveGroup = async function (io, userId, data, socketId) {
 
 // Function to execute when a user sends a message in the server ✅
 
-module.exports.SendGroupMessage = async function (io, userId,userName ,data) {
+module.exports.SendGroupMessage = async function (io, userId, userName, data) {
   //  Store in the database in appropirate manner
 
   // Finding the grp chat whose message has come
@@ -570,7 +577,7 @@ module.exports.SendGroupMessage = async function (io, userId,userName ,data) {
       const receiver = await activeUsers.findOne({ user: key });
       if (receiver) {
         io.to(receiver.socket).emit("receive-group-message", {
-          ChatId : data.GroupId,
+          ChatId: data.GroupId,
           Sender: userName,
           Content: data.Content,
         });
@@ -586,7 +593,7 @@ module.exports.SendGroupMessage = async function (io, userId,userName ,data) {
     ReadStatus: ReadStatusMap,
     Timestamp: Date.now(),
   });
-  grp_chat.LastChat = Date.now()
+  grp_chat.LastChat = Date.now();
   await grp_chat.save();
 };
 
@@ -673,46 +680,45 @@ module.exports.ChangeAdmin = async function (io, userId, data, socketId) {
 
 // Function to execute when a user wants fetch a group chat
 
-module.exports.FetchGroupChat = async function(io,userId,data,socketId){
-  
+module.exports.FetchGroupChat = async function (io, userId, data, socketId) {
   // Finding the chat associated with group id
 
   const grp_chat = await group_chat.findOne({ _id: data.GroupId });
 
   // Modifying messages array to include sender name instead of sender id
 
-  const messages = await Promise.all(grp_chat.Messages.map(async(message)=>{
-  
-    // Finding Sender details associated with the user
+  const messages = await Promise.all(
+    grp_chat.Messages.map(async (message) => {
+      // Finding Sender details associated with the user
 
-    const senderName = await Users.findOne({_id : message.Sender})
-  return {
-    Content: message.Content,
-    Sender: senderName.Name,
-    ReadStatus : message.ReadStatus,
-    Timestamp : message.Timestamp,
-    Id : message._id
-  };
-  }))
+      const senderName = await Users.findOne({ _id: message.Sender });
+      return {
+        Content: message.Content,
+        Sender: senderName.Name,
+        ReadStatus: message.ReadStatus,
+        Timestamp: message.Timestamp,
+        Id: message._id,
+      };
+    })
+  );
 
   // Fetching details of partcipants so that names can be fetched to the user
-  const Participants = [];
+  const Participants = {};
   await (async () => {
-
     for (const [userId, unread] of grp_chat.Participants) {
-      
       const participantName = await fetchParticipantName(userId);
-      
-      Participants.push(participantName)
+
+      Participants[participantName] = userId == grp_chat.Admin;
     }
   })();
 
   // Returning the required info
-  
-  io.to(socketId).emit("group-chat",{
-    Admin : grp_chat.Admin,
-    Name : grp_chat.Name,
-    Participants : Participants,
-    Messages : messages
-  })
-}
+
+  io.to(socketId).emit("group-chat", {
+    Admin: grp_chat.Admin,
+    Name: grp_chat.Name,
+    Description: grp_chat.Description,
+    Participants: Participants,
+    Messages: messages,
+  });
+};

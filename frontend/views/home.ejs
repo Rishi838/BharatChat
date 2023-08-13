@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="./frontend/stylesheets/home.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <title>Document</title>
   </head>
   <body>
@@ -17,7 +20,8 @@
           <nav class="c-panels__navigation">
             <ul class="c-panels__ul">
               <li class="c-panels__li">
-                <a class="c-panels__link"  id="search-icon"><i class="fas fa-search"></i>
+                <a class="c-panels__link" id="search-icon"
+                  ><i class="fas fa-search"></i>
                 </a>
               </li>
               <li class="c-panels__li">
@@ -58,86 +62,148 @@
             </ul>
           </nav>
         </div>
-         <div class="c-users" id="chat-list" >
+        <div class="c-users" id="chat-list">
           <input class="c-users__search" type="text" placeholder="Search" />
 
           <h2 class="c-group-title">Self</h2>
           <ul class="c-users__people" id="self-chat-list">
             <!-- Self Chat Will Be Rendered dynamically -->
-           </ul>
+          </ul>
 
-          <h2 class="c-group-title">
-            Direct Messages
-          </h2>
+          <h2 class="c-group-title">Direct Messages</h2>
           <ul class="c-users__people" id="personal-chat-list">
             <!-- Personal Chat List will be displayed dynamically  -->
-           </ul>
+          </ul>
 
-          <h2 class="c-group-title">Groups <i class="fas fa-plus"></i></h2>
+          <h2 class="c-group-title">Groups <i class="fas fa-plus" id="new-group-icon"></i></h2>
           <ul class="c-users__people" id="group-chat-list">
             <!-- Group Chat List will be rendered dynamically -->
           </ul>
-        </div> 
-        <div class="c-users" id="search-user" style="display: none;">
-          <input class="c-users__search" id="search-query" type="text" placeholder="Search" />
-          <ul class="c-users__people" id="search-user-list" style="margin-top: 40px;">
-            <!-- Search User List will be displayed dynamically  -->
-           </ul>
         </div>
-      </aside> 
+        <div class="c-users" id="search-user" style="display: none">
+          <input
+            class="c-users__search"
+            id="search-query"
+            type="text"
+            placeholder="Search"
+          />
+          <ul
+            class="c-users__people"
+            id="search-user-list"
+            style="margin-top: 40px"
+          >
+            <!-- Search User List will be displayed dynamically  -->
+          </ul>
+        </div>
+      </aside>
       <section class="c-chat">
         <header class="c-chat__header">
           <div class="c-chat__title">
-            <h1 id="chat-name"><i class="fas fa-hashtag"></i><!--Name will be fetched dynamically--> </h1>
-            <p id="chat-details"><!--Details will be fetched dynamically--> </p>
+            <h1 id="chat-name">
+              <i class="fas fa-hashtag"></i
+              ><!--Name will be fetched dynamically-->
+            </h1>
+            <p id="chat-details"><!--Details will be fetched dynamically--></p>
             <!-- <button id="add-member" style="display: none;"><i class="fas fa-plus"></i> Add Member</button> -->
           </div>
           <div class="c-chat__options"></div>
         </header>
-        <div class="c-chat__window" id="chats" >
-                <!--Chats will be fetched dynamically-->
+        <div class="c-chat__window" id="chats">
+          <!--Chats will be fetched dynamically-->
         </div>
         <div class="chat-input-wrapper" id="msg-area">
           <button class="chat-attachment-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-paperclip" viewBox="0 0 24 24">
-              <defs/>
-              <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              class="feather feather-paperclip"
+              viewBox="0 0 24 24"
+            >
+              <defs />
+              <path
+                d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"
+              />
             </svg>
           </button>
           <div class="input-wrapper">
-            <input type="text" class="chat-input" id="xx" placeholder="Enter your message here">
+            <input
+              type="text"
+              class="chat-input"
+              id="xx"
+              placeholder="Enter your message here"
+            />
             <button class="emoji-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-smile" viewBox="0 0 24 24">
-              <defs/>
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                class="feather feather-smile"
+                viewBox="0 0 24 24"
+              >
+                <defs />
+                <circle cx="12" cy="12" r="10" />
+                <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" />
+              </svg>
+            </button>
           </div>
           <button id="send" class="chat-send-btn">Send</button>
         </div>
-      </div>
-        
-       <!-- Things to display when we are creating new things -->
 
-        <div id="start-chat-text" style="display:none ; color:rgb(233, 224, 224);position:fixed;left:43vw;bottom:50vh">Start your conversation by saying Hello<img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="35"></div>
-        <button id="start-chat-btn" class="btn third" style="display:none;position:fixed; bottom:10px;left:45vw">Start Chat</button>
+        <!-- Things to display when we are creating new things -->
+
+        <div
+          id="start-chat-text"
+          style="
+            display: none;
+            color: rgb(233, 224, 224);
+            position: fixed;
+            left: 43vw;
+            bottom: 50vh;
+          "
+        >
+          Start your conversation by saying Hello<img
+            src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif"
+            width="35"
+          />
+        </div>
+        <button
+          id="start-chat-btn"
+          class="btn third"
+          style="display: none; position: fixed; bottom: 10px; left: 45vw"
+        >
+          Start Chat
+        </button>
       </section>
       <div class="c-chat-info">
-        <header class="c-chat__header c-chat__header--left">
+        <div id="first">
+        <header
+          class="c-chat__header c-chat__header--left"
+        >
           <div class="c-chat__title">
+          
             <h2 id="chat-title-info"></h2>
-            <p id="time-info">Created 2/22/2221</p>
+            <p id="info"></p>
           </div>
         </header>
-        <div class="c-chat__options">
+        <div class="c-chat__options" >
           <h2 class="c-group-title">
             Members <i class="fas fa-chevron-down"></i>
           </h2>
           <ul class="c-users__people" id="member-list">
-           <!-- Chat List will be rendered through JS -->
+            <!-- Chat List will be rendered through JS -->
+           
           </ul>
-
           <h2 class="c-group-title">
             Shared Files <i class="fas fa-chevron-right"></i>
           </h2>
@@ -149,8 +215,50 @@
           </h2>
         </div>
       </div>
+        <div id="create-grp" style="display: none;">
+          <div class="c-chat__title">
+            <h2 style="margin: 20px 15px">Create Group</h2>
+          </div>
+          <div class="group">
+            <input type="text" id="grp-name" required />
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>Name</label>
+          </div>
+          <div class="group">
+            <input type="text" id="grp-desc" required />
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>Description</label>
+          </div>
+          <div class="group">
+            <input type="text" id="grp-participant-search" required />
+            <span class="highlight"></span>
+            <span class="bar"></span>
+            <label>Add Members</label>
+          </div>
+          <ul
+            class="c-users__people"
+            id="add-user-list"
+            style="margin-left: 25px"
+          ></ul>
+          <div class="user-container">
+            <div class="filters" id="added-user-list">
+            </div>
+          </div>
+          <div class="chat-btns">
+            <button class="fill" id="cancel">Cancel</button>
+            <button class="fill" id="create">Create</button>
+          </div>
+          <div id="grp-error" style="text-align: center; margin-top:10px; color:red;"></div>
+        </div>
+      </div>
     </main>
+    <div class="container" id="notificationContainer" style="z-index: 3"></div>
     <script src="./frontend/scripts/home.js"></script>
     <script src="./frontend/scripts/chat.js"></script>
   </body>
 </html>
+
+
+

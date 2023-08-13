@@ -39,6 +39,19 @@ function get_time() {
   return formattedDate;
 }
 
+// To create a notification
+function createNotification(message, type, time) {
+  const notification = document.createElement("div");
+  notification.classList.add(type);
+  notification.textContent = message;
+
+  document.getElementById("notificationContainer").appendChild(notification);
+
+  setTimeout(() => {
+    notification.remove();
+  }, time);
+}
+
 // These are the variables to find that which chat is active and what is his type
 
 var activeId;
@@ -46,14 +59,15 @@ var activeType = "Self";
 var UserName;
 var UserId;
 var searchId;
+var Members = []; // This is
 
 // Event Listner when a user profile is clicked after searching
 
-function search_user (id){
-  return ()=>{
-    searchId = id
-     Socket.emit("check-chat",{Receiver:id})
-  }
+function search_user(id) {
+  return () => {
+    searchId = id;
+    Socket.emit("check-chat", { Receiver: id, Type: "Search" });
+  };
 }
 
 // Event Listner when a chat is Clicked in the chat list
@@ -100,7 +114,6 @@ function chat_opener(type, id, Partner) {
   } else if (type === "Group") {
     return () => {
       //  Setting value of placeholder as empty
-
       document.getElementById("xx").value = "";
 
       // As chat is opened so we have read the  msg, so telling server as well as updating the count
@@ -180,6 +193,49 @@ function send_msg(type, id, Content) {
   document.getElementById("xx").value = "";
 }
 
+// Event listner when user tries to add user to group by searching it
+
+function add_user(id, name) {
+  return () => {
+    const index = Members.indexOf(id);
+    if (index !== -1) {
+      return;
+    }
+
+    Members.push(id);
+
+    // Creating a new user element
+    const userElement = document.createElement("span");
+    userElement.className = "user";
+    userElement.id = `added${id}`;
+    userElement.textContent = name;
+
+    // Creating a cross icon for removal
+    const crossIcon = document.createElement("i");
+    crossIcon.className = "fa-regular fa-circle-xmark cross";
+    crossIcon.id = `remove${id}`;
+
+    // Adding the cross icon to the user element
+    userElement.appendChild(crossIcon);
+
+    // Adding the user element to the display list
+    document.getElementById("added-user-list").appendChild(userElement);
+
+    // Adding an event listener to the cross icon for removal
+    crossIcon.addEventListener("click", remove_user(id, index));
+  };
+}
+
+// Event listener to handle removing of user from added  list
+
+function remove_user(id, index) {
+  return () => {
+    Members.splice(index, 1);
+    const userElement = document.getElementById(`added${id}`);
+    userElement.parentNode.removeChild(userElement);
+  };
+}
+
 const Socket = io("http://localhost:5000");
 
 // Helper functions by which we send requests to the server
@@ -196,46 +252,10 @@ function fetch_personal_chat(ChatId) {
   Socket.emit("fetch-personal-chat", { ChatId });
 }
 
-// Helper function to create a new group as admin ✅
-
-function create_group_chat(Name, Description, Participants) {
-  Socket.emit("create-group-chat", {
-    Name,
-    Description,
-    Participants,
-  });
-}
-
-// Helper function to send a message in the group ✅
-
-function send_group_message(GroupId, Content) {
-  Socket.emit("send-group-message", { GroupId, Content });
-}
-
-// Helper function to send read status of the group chat✅
-
-function read_group_message(GroupId) {
-  Socket.emit("read-group-message", {
-    GroupId,
-  });
-}
-
 // Helper function  add  a new member to the grp(only by admin)✅
 
 function add_member(GroupId, Member) {
   Socket.emit("add-member", { GroupId, Member });
-}
-
-// Helper function to leave a group(any regular use) ✅
-
-function leave_group(GroupId) {
-  Socket.emit("leave-grp", { GroupId });
-}
-
-// Helper function to delete a group(only admin)
-
-function delete_group(GroupId) {
-  Socket.emit("delete-grp", { GroupId });
 }
 
 // Helper function to change the admin for the grp(admin only)
@@ -258,7 +278,7 @@ Socket.on("user-id", (data) => {
   //  Setting self chat as the active chat and setting username
 
   activeId = data.userId;
-  UserId = activeId
+  UserId = activeId;
   UserName = data.userName;
 
   // document.getElementById("chats").innerHTML = `
@@ -295,7 +315,6 @@ Socket.on("user-details", (data) => {
 // Searched user functionality ✅
 
 Socket.on("searched-user", (data) => {
-  
   // we'll receive the searched user details
 
   // Updating the search-user-list
@@ -303,10 +322,10 @@ Socket.on("searched-user", (data) => {
   document.getElementById("search-user-list").innerHTML = "";
 
   const user_list = data.Users;
-  
+
   for (let i = 0; i < user_list.length; i++) {
-    if(user_list[i]._id!=UserId){
-    document.getElementById("search-user-list").innerHTML += `
+    if (user_list[i]._id != UserId) {
+      document.getElementById("search-user-list").innerHTML += `
     <li class="c-users__person" id="${user_list[i]._id}">${user_list[i].Name}</li>
     `;
     }
@@ -315,12 +334,11 @@ Socket.on("searched-user", (data) => {
   // Add Event listener for each user
 
   for (let i = 0; i < user_list.length; i++) {
-    if(user_list[i]._id!=UserId && user_list.includes(user_list[i])){
-      let element = document.getElementById(`${user_list[i]._id}`)
-      element.addEventListener('click',search_user(user_list[i]._id))
+    if (user_list[i]._id != UserId && user_list.includes(user_list[i])) {
+      let element = document.getElementById(`${user_list[i]._id}`);
+      element.addEventListener("click", search_user(user_list[i]._id));
     }
   }
-
 });
 
 // Receving access token and  then sending it to update cookies api to update the cookies✅
@@ -333,52 +351,55 @@ Socket.on("access-token", async (data) => {
 
 // Listening to create chat button
 
-Socket.on("create-chat-result",(data)=>{
-  // Handling two cases Like when chat exists or when it does not exists 
+Socket.on("create-chat-result", (data) => {
+  // Handling two cases Like when chat exists or when it does not exists
 
-  if(data.Exists==1){
+  if (data.Exists == 1) {
+    // case when chat exits
 
-    // case when chat exits 
-
-    activeId = data.ChatId
-    activeType ="Personal"
+    activeId = data.ChatId;
+    activeType = "Personal";
 
     // Telling Backend To open the chat
 
-    Socket.emit("fetch-personal-chat", { ChatId: data.ChatId, Partner : data.Partner});
+    Socket.emit("fetch-personal-chat", {
+      ChatId: data.ChatId,
+      Partner: data.Partner,
+    });
 
     // Displaying msgs part and hiding create part
-    document.getElementById("start-chat-text").style.display = "none"
-    document.getElementById("start-chat-btn").style.display = "none"
-    document.getElementById("chats").style.display = "flex"
-    document.getElementById("msg-area").style.display = "flex"
-
-  }else{
+    document.getElementById("start-chat-text").style.display = "none";
+    document.getElementById("start-chat-btn").style.display = "none";
+    document.getElementById("chats").style.display = "flex";
+    document.getElementById("msg-area").style.display = "flex";
+  } else {
     // Displaying new part for creating a chat
-    document.getElementById("chats").style.display = "none"
-    document.getElementById("msg-area").style.display = "none"
-    document.getElementById("start-chat-text").style.display = "block"
-    document.getElementById("start-chat-btn").style.display = "block"
+    document.getElementById("chats").style.display = "none";
+    document.getElementById("msg-area").style.display = "none";
+    document.getElementById("start-chat-text").style.display = "block";
+    document.getElementById("start-chat-btn").style.display = "block";
 
     // Displaying name of Partner on top of chat info
 
-    document.getElementById("chat-name").innerHTML = `<i class="fas fa-hashtag"></i>${data.Partner}`
+    document.getElementById(
+      "chat-name"
+    ).innerHTML = `<i class="fas fa-hashtag"></i>${data.Partner}`;
 
     // Adding an event Listner is user clicks on this button
 
-    document.getElementById("start-chat-btn").addEventListener('click',()=>{
-     
-    // Creating the chat by sending it to the server'
+    document.getElementById("start-chat-btn").addEventListener("click", () => {
+      // Creating the chat by sending it to the server'
 
-    Socket.emit("create-personal-chat", { Receiver:searchId, Partner: data.Partner , UserName });
+      Socket.emit("create-personal-chat", {
+        Receiver: searchId,
+        Partner: data.Partner,
+        UserName,
+      });
 
-    // Displaying the chat section and send msg button( other works like setting that chat as active) and moving it to the top of personal chat and making chat list as visible will be done by socket Listening on create-personal-chat-success-creater)
-
-    })
-    
+      // Displaying the chat section and send msg button( other works like setting that chat as active) and moving it to the top of personal chat and making chat list as visible will be done by socket Listening on create-personal-chat-success-creater)
+    });
   }
-
-})
+});
 
 // Fetching the personal msg list to display in the list column ✅
 
@@ -420,34 +441,39 @@ Socket.on("personal-chat-list", (data) => {
 // Receving acknowledgment when an new chat is created by this user itself ✅
 
 Socket.on("create-personal-chat-creator", (data) => {
-
   // displaying chat msgs and msg send area
 
   // Fetching Personal chat so that consistency is maintained, just not making it visible
 
-  Socket.emit("fetch-personal-chat", { ChatId: data.ChatId, Partner : data.Partner});
+  Socket.emit("fetch-personal-chat", {
+    ChatId: data.ChatId,
+    Partner: data.Partner,
+  });
 
-  document.getElementById("start-chat-text").style.display = "none"
-  document.getElementById("start-chat-btn").style.display = "none"
-  document.getElementById("chats").style.display = "flex"
-  document.getElementById("msg-area").style.display = "flex"
+  document.getElementById("start-chat-text").style.display = "none";
+  document.getElementById("start-chat-btn").style.display = "none";
+  document.getElementById("chats").style.display = "flex";
+  document.getElementById("msg-area").style.display = "flex";
 
-  
   // Creating a new list in personal list and displaying it to the top
 
   const new_chat = `<li class="c-users__person" id="${data.ChatId}">${data.Partner}
-  <span class="unread-count" id="${data.ChatId}Count"></span></li>`
+  <span class="unread-count" id="${data.ChatId}Count"></span></li>`;
 
-  document.getElementById("personal-chat-list").insertAdjacentHTML("afterbegin", new_chat);
+  document
+    .getElementById("personal-chat-list")
+    .insertAdjacentHTML("afterbegin", new_chat);
 
   // Setting this chat as active
 
-  activeId = data.ChatId
-  activeType = "Personal"
+  activeId = data.ChatId;
+  activeType = "Personal";
 
   // Adding event listner on it to open it again
 
-  document.getElementById(data.ChatId).addEventListener('click',chat_opener(activeType,activeId,data.Partner))
+  document
+    .getElementById(data.ChatId)
+    .addEventListener("click", chat_opener(activeType, activeId, data.Partner));
 
   // Displaying chat list again and hiding the search list
 
@@ -457,24 +483,28 @@ Socket.on("create-personal-chat-creator", (data) => {
 
 // Recieving acknowledgment when a new chat is created by any other user
 
-Socket.on("create-personal-chat-partner",(data)=>{
+Socket.on("create-personal-chat-partner", (data) => {
+  // Creating a new list in personal list and displaying it to the top(as this chat is the latest)
 
-   // Creating a new list in personal list and displaying it to the top(as this chat is the latest)
+  const new_chat = `<li class="c-users__person" id="${data.ChatId}">${data.Partner}
+   <span class="unread-count" id="${data.ChatId}Count"></span></li>`;
 
-   const new_chat = `<li class="c-users__person" id="${data.ChatId}">${data.Partner}
-   <span class="unread-count" id="${data.ChatId}Count"></span></li>`
- 
-   document.getElementById("personal-chat-list").insertAdjacentHTML("afterbegin", new_chat);
+  document
+    .getElementById("personal-chat-list")
+    .insertAdjacentHTML("afterbegin", new_chat);
 
   //  Adding event listner for it to open the chat
 
-   document.getElementById(data.ChatId).addEventListener('click',chat_opener("Personal",data.ChatId,data.Partner))
+  document
+    .getElementById(data.ChatId)
+    .addEventListener(
+      "click",
+      chat_opener("Personal", data.ChatId, data.Partner)
+    );
 
   //  Not marking chat as active or doing any other stuff because this chat is not created by the user, just upadting the chat list
+});
 
-})
-
-  
 // Receing personal messages from server whwn user is active ✅
 
 Socket.on("receive-personal-message", (data) => {
@@ -538,6 +568,7 @@ Socket.on("read-personal-msg-ack", (data) => {
 // Fetching personal chat ✅
 
 Socket.on("personal-chat", (data) => {
+
   // Displaying personal chat data
 
   const chatWindow = document.getElementById("chats");
@@ -546,6 +577,9 @@ Socket.on("personal-chat", (data) => {
   // loaderElements.forEach((loaderElement) => {
   //   chatWindow.removeChild(loaderElement);
   // });
+
+  document.getElementById("info").innerHTML =
+    "Yeh baatein hi to baad me yaad aayengi";
 
   // Displaying data on the right side(chat info and members section)
 
@@ -595,6 +629,8 @@ Socket.on("personal-chat", (data) => {
 // Self Chat Listening ✅
 
 Socket.on("self-chat", (data) => {
+
+
   // Removing the loader if there was any
 
   const chatWindow = document.getElementById("chats");
@@ -607,11 +643,11 @@ Socket.on("self-chat", (data) => {
   document.getElementById(
     "chat-title-info"
   ).innerHTML = `<i class="fas fa-hashtag" ></i>Self Chat`;
+  document.getElementById("info").innerHTML = "You are better than Everyone";
 
   document.getElementById(
     "member-list"
   ).innerHTML = `<li class='c-users__person'>${data.Name}</li>`;
-
   // Fetch Messages over here
   document.getElementById(
     "chat-name"
@@ -667,22 +703,53 @@ Socket.on("group-chat-list", (data) => {
   }
 });
 
-// Acknowlegment of group chat creation failed ✅
+// Acknowlegment of new group chat being created by the user himself✅
 
-Socket.on("create-group-chat-fail", (data) => {
-  console.log(data);
+Socket.on("create-group-chat-creator", (data) => {
+  //  Clearing out the Messages array (we can also disable the button)
+  Messages = [];
+
+  // Setting activeId and Type
+  activeId = data.GroupId;
+  activeType = "Group";
+
+  // Fetching the group chat associated with that chatId(fetchinf to avoid disperancy)
+  Socket.emit("fetch-group-chat", { GroupId: data.GroupId });
+
+  // Displaying list on the top of group list
+
+  const new_chat = `<li class="c-users__person" id="${data.GroupId}">${data.Name}<span class="unread-count" id="${data.GroupId}Count"></span></li>`;
+
+  document
+    .getElementById("group-chat-list")
+    .insertAdjacentHTML("afterbegin", new_chat);
+
+  // Hiding the create screen and displaying chat list
+  document.getElementById("first").style.display = "block";
+  document.getElementById("create-grp").style.display = "none";
+
+  // Adding event listner on the newly created group to open it after that in real time
+  document
+    .getElementById(data.GroupId)
+    .addEventListener("click", chat_opener(activeType, activeId));
 });
 
-// Acknowlegment of new group chat being created ✅
+// Acknowlegment of new group chat being created by another user
 
-Socket.on("create-group-chat-success", (data) => {
-  console.log(
-    "Group Chat Created Successfully with",
-    data.GroupId,
-    data.Name,
-    data.Description,
-    data.Participants
-  );
+Socket.on("create-group-chat-receiver", (data) => {
+  //  Displaying new chat in the top of grp chat list
+
+  const new_chat = `<li class="c-users__person" id="${data.GroupId}">${data.Name}<span class="unread-count" id="${data.GroupId}Count"></span></li>`;
+
+  document
+    .getElementById("group-chat-list")
+    .insertAdjacentHTML("afterbegin", new_chat);
+
+  // Adding EVent Listner on it (to open it)
+
+  document
+    .getElementById(data.GroupId)
+    .addEventListener("click", chat_opener("Group", data.GroupId));
 });
 
 // Receiving new message in the group  ✅
@@ -697,7 +764,7 @@ Socket.on("receive-group-message", (data) => {
 
   const ChatToMove = document.getElementById(ChatId);
   const ChatList = document.getElementById("group-chat-list");
-  console.log(ChatToMove,ChatList)
+  console.log(ChatToMove, ChatList);
   ChatList.removeChild(ChatToMove);
   ChatList.insertBefore(ChatToMove, ChatList.firstChild);
 
@@ -764,28 +831,59 @@ Socket.on("new-grp-added", (data) => {
   console.log(data);
 });
 
-// Receiving ack when grp chat deletion fails
+// Receiving ack when grp chat deletion succeed(is deleted by user)
 
-Socket.on("delete-grp-fail", (data) => {
-  console.log(data);
-});
+Socket.on("delete-group-chat-creator", (data) => {
+  //  Removing group chat from that chat list and opening the self chat and marking this chat as active
 
-// Receiving ack when grp chat deletion succeed
+  document
+    .getElementById("group-chat-list")
+    .removeChild(document.getElementById(data.GroupId));
 
-Socket.on("delete-grp-success", (data) => {
-  console.log(data);
+  // Opening self chat
+
+  activeId = UserId;
+  activeType = "Self";
+
+  Socket.emit("fetch-self-chat", {});
+
+  //Display Popup Notification that group has been left successfully
+
+  createNotification("Group Deleted Successfully", "success_notification", 1000);
+  
+
 });
 
 // Receving acknowledgment if user fails to leave the grp(when he is the admin of the grp)✅
 
 Socket.on("group-left-fail", (data) => {
-  console.log(data);
+  // Telling user that he need to make a new admin before leaving the group
+  createNotification(
+    "Make New Admin before Leaving",
+    "alert_notification",
+    1000
+  );
 });
 
 // Receving acknowledgment if user fails to leave the grp(when he is the admin of the grp)✅
 
 Socket.on("group-left-success", (data) => {
-  console.log(data);
+  //  Removing group chat from that chat list and opening the self chat and marking this chat as active
+
+  document
+    .getElementById("group-chat-list")
+    .removeChild(document.getElementById(data.GroupId));
+
+  // Opening self chat
+
+  activeId = UserId;
+  activeType = "Self";
+
+  Socket.emit("fetch-self-chat", {});
+
+  //Display Popup Notification that group has been left successfully
+
+  createNotification("Group Left Successfully", "success_notification", 1000);
 });
 
 // Receving ack when someone in the grp left the chat ✅
@@ -809,6 +907,7 @@ Socket.on("change-admin-success", (data) => {
 // Function to fetch group chat
 
 Socket.on("group-chat", (data) => {
+
   // Displaying Group chat data
 
   // Changing Things on right side (in chat info)
@@ -817,12 +916,26 @@ Socket.on("group-chat", (data) => {
     "chat-title-info"
   ).innerHTML = `<i class="fas fa-hashtag" ></i> Group Info`;
 
+  document.getElementById("info").innerHTML = data.Description;
   document.getElementById("member-list").innerHTML = "";
 
-  for (let i = 0; i < data.Participants.length; i++) {
+  for (const key in data.Participants) {
     document.getElementById(
       "member-list"
-    ).innerHTML += `<li class='c-users__person'>${data.Participants[i]}</li>`;
+    ).innerHTML += `<li class='c-users__person'>${key}${
+      data.Participants[key] ? '<span class="admin">Admin</span>' : `<i class="fa-solid fa-ellipsis-vertical dots" style="color: rgb(195, 189, 189);"></i>`
+    }</li>`;
+  }
+  // Adding delete group button is user is the admin else giving only leave button
+
+  if (UserId == data.Admin) {
+    document.getElementById(
+      "member-list"
+    ).innerHTML += ` <div style="text-align:right"><button class="fill" id="leave" >Leave </button><button class="fill" id="delete" style="margin-left:15px" >Delete</button></div>`;
+  } else {
+    document.getElementById(
+      "member-list"
+    ).innerHTML += ` <div style="text-align:right"><button class="fill" id="leave" >Leave </button></div>`;
   }
 
   const chatWindow = document.getElementById("chats");
@@ -858,6 +971,47 @@ Socket.on("group-chat", (data) => {
   }
 
   document.getElementById("chats").innerHTML = x;
+
+  // Adding event listener to leave btn
+
+  document.getElementById("leave").addEventListener("click", () => {
+    // Tell the server that user wants to leave the group
+    Socket.emit("leave-grp", { GroupId: activeId });
+    // Handle its acknowledgmen on the other side of using socket.on
+  });
+
+  // Adding event listner to delete the group if user is the admin]
+
+  if(UserId == data.Admin){
+    document.getElementById("delete").addEventListener("click",()=>{
+      Socket.emit("delete-grp", { GroupId: activeId });
+    })
+  }
+});
+
+// Function to invoke when user search for participant to add in grp
+
+Socket.on("added-user-match", (data) => {
+  // Making a new user list to add
+
+  document.getElementById("add-user-list").innerHTML = "";
+  for (let i = 0; i < data.Users.length; i++) {
+    document.getElementById("add-user-list").innerHTML += `
+    <li class="c-users__person" id="add${data.Users[i]._id}">${data.Users[i].Name}</li>
+    `;
+  }
+
+  // Adding event listner to each user Id to add it to the members section
+
+  for (let i = 0; i < data.Users.length; i++) {
+    if (data.Users.includes(data.Users[i])) {
+      let element = document.getElementById(`add${data.Users[i]._id}`);
+      element.addEventListener(
+        "click",
+        add_user(data.Users[i]._id, data.Users[i].Name)
+      );
+    }
+  }
 });
 
 // Othe function to handle various event listners
@@ -879,7 +1033,9 @@ document.getElementById("search-icon").addEventListener("click", () => {
 // Event Listner when user types a query
 
 document.getElementById("search-query").addEventListener("input", () => {
-  Socket.emit("search-user", { Name : document.getElementById("search-query").value});
+  Socket.emit("search-user", {
+    Name: document.getElementById("search-query").value,
+  });
 });
 
 // Event Listener for when users sends a message
@@ -888,3 +1044,76 @@ document.getElementById("send").addEventListener("click", () => {
   const x = document.getElementById("xx").value;
   send_msg(activeType, activeId, x);
 });
+
+// Event listner when user clicks on the + icon to create new grp chat
+
+document.getElementById("new-group-icon").addEventListener("click", () => {
+  //  Clearing out previous field to start a new group creation
+  Members = [];
+  document.getElementById("grp-name").value = "";
+  document.getElementById("grp-desc").value = "";
+  document.getElementById("grp-participant-search").value = "";
+  document.getElementById("add-user-list").innerHTML = "";
+  document.getElementById("added-user-list").innerHTML = "";
+
+  // Hiding the chat info section
+  document.getElementById("first").style.display = "none";
+
+  // Displaying the create chat screen
+  document.getElementById("create-grp").style.display = "block";
+});
+
+// Event Listner when user clicks on grp create
+
+document.getElementById("cancel").addEventListener("click", () => {
+  // Displaying the chat info section
+  document.getElementById("first").style.display = "block";
+
+  //Hiding the create chat screen
+  document.getElementById("create-grp").style.display = "none";
+});
+
+// Event Listner when user cancels the creation of group
+
+document.getElementById("create").addEventListener("click", () => {
+  // Checking whether all fields are provided or not
+
+  const Name = document.getElementById("grp-name").value;
+  const Description = document.getElementById("grp-desc").value;
+
+  if (Name == "") {
+    document.getElementById("grp-error").innerHTML = "Provide a Valid Name";
+    return;
+  }
+  if (Description == "") {
+    document.getElementById("grp-error").innerHTML =
+      "Provide a Valid Description";
+    return;
+  }
+  if (Members.length < 2) {
+    document.getElementById("grp-error").innerHTML = "Select Atleast 2 Members";
+    return;
+  }
+  document.getElementById("grp-error").innerHTML = "";
+
+  // Asking the server to creata new group chat
+
+  Socket.emit("create-group-chat", {
+    Name,
+    Description,
+    Participants: Members,
+  });
+});
+
+// Event listener when user search for participants to add
+
+document
+  .getElementById("grp-participant-search")
+  .addEventListener("input", () => {
+    //  Asking the server to search for user (autocomplete)and rest things will be handeled by the socket.on function of this emit
+
+    Socket.emit("search-user", {
+      Name: document.getElementById("grp-participant-search").value,
+      Type: "Add",
+    });
+  });
