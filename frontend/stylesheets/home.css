@@ -16,7 +16,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Open Sans", sans-serif;
+  /* font-family: "Open Sans", sans-serif; */
+  font-family: 'Noto Sans', sans-serif;
 }
 .app {
   width: 100vw;
@@ -447,7 +448,7 @@ body {
   margin: 55px 20px;
 
 }
-#create-grp input {
+.group input {
   font-size: 13px;
   padding: 10px 10px 10px 5px;
   display: block;
@@ -458,12 +459,12 @@ body {
   background-color: #303238;
   color: white;
 }
-#create-grp input:focus {
+.group input:focus {
   outline: none;
 }
 
 /* LABEL ======================================= */
-#create-grp label {
+.group label {
   color: #999;
   font-size: 18px;
   font-weight: normal;
@@ -478,8 +479,8 @@ body {
 }
 
 /* active state */
-#create-grp input:focus ~ label,
-#create-grp input:valid ~ label {
+.group input:focus ~ label,
+.group input:valid ~ label {
   top: -20px;
   font-size: 14px;
   color: #5264ae;
@@ -711,11 +712,39 @@ padding: 5px;
   right: 0;
 }
 
-.dots{
+.minus{
   opacity: 0.9;
   padding: 0 0.5rem;
   border-radius: 4px;
   position: absolute;
-  right: 0;
+  right: 0px;
 }
 
+.minus:hover{
+  transform: scale(1.5);
+}
+
+.plus{
+ 
+  opacity: 0.9;
+  padding: 0 0.5rem;
+  border-radius: 4px;
+  position: absolute;
+  right: 20px;
+}
+
+.plus:hover{
+  transform: scale(1.5);
+}
+
+#add-to-existing{
+  background-color: transparent;
+  color: white;
+  padding: 4px;
+  border: none;
+  position: absolute;
+  right: 0px;
+}
+#add-to-existing:hover{
+  cursor: pointer;
+}

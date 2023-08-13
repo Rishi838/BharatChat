@@ -186,6 +186,12 @@ module.exports.SetUpSocketIo = async (io) => {
       await chatController.LeaveGroup(io,userId,data,socket.id)
     })
 
+    // Below function is used when admin kicks out someone
+
+    socket.on("kickout",async(data)=>{
+      await chatController.Kickout(io,userId,data,socket.id);
+    })
+
     // Below function is used to delete a grp ✅
     
     socket.on("delete-grp",async(data)=>{

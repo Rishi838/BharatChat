@@ -369,9 +369,8 @@ module.exports.SendSelfMessage = async function (io, userId, data) {
 
 module.exports.FetchSelfChat = async function (io, userId, userName, socketId) {
   // Searching for user in self chat database
-
   const self_msgs = await self_chat.findOne({ UserId: userId });
-
+ 
   // Returning chats to the user
 
   io.to(socketId).emit("self-chat", {
@@ -637,29 +636,16 @@ module.exports.ChangeAdmin = async function (io, userId, data, socketId) {
 
   const grp_chat = await group_chat.findOne({ _id: data.GroupId });
 
-  // Checking if user is admin or not
-
-  if (!userId.equals(grp_chat.Admin)) {
-    io.to(socketId).emit("change-admin-fail", {
-      Message: "You Should be admin to make someone else as admin",
-    });
-    return;
-  }
-
-  if (!grp_chat.Participants.has(data.Member)) {
-    io.to(socketId).emit("change-admin-fail", {
-      Message: "member should be in grp to make him/her as admin",
-    });
-    return;
-  }
-
   // Changing the admin
 
   grp_chat.Admin = data.Member;
 
   await grp_chat.save();
-  console.log(grp_chat);
 
+  io.to(socketId).emit("change-admin-success-creator",{
+    GroupId: grp_chat._id,
+  })
+ 
   // Notifying other ppl in grp
 
   for (const [key, value] of grp_chat.Participants) {
@@ -667,12 +653,11 @@ module.exports.ChangeAdmin = async function (io, userId, data, socketId) {
 
     const receiver = await activeUsers.findOne({ user: key });
 
-    if (receiver) {
+    if (receiver && key !=userId) {
       // Return success status
 
-      io.to(receiver.socket).emit("change-admin-success", {
-        ChatId: grp_chat._id,
-        Admin: grp_chat.Admin,
+      io.to(receiver.socket).emit("change-admin-success-receiver", {
+        GroupId: grp_chat._id,
       });
     }
   }
@@ -708,7 +693,7 @@ module.exports.FetchGroupChat = async function (io, userId, data, socketId) {
     for (const [userId, unread] of grp_chat.Participants) {
       const participantName = await fetchParticipantName(userId);
 
-      Participants[participantName] = userId == grp_chat.Admin;
+      Participants[userId] = participantName;
     }
   })();
 
@@ -722,3 +707,46 @@ module.exports.FetchGroupChat = async function (io, userId, data, socketId) {
     Messages: messages,
   });
 };
+
+// Function to execute when admin wants to kick out a member of the group
+
+module.exports.Kickout = async function(io,userId,data,socketId){
+
+  //  Removing the person from the group after fetching the chat
+  const grp_chat = await group_chat.findOne({_id : data.GroupId})
+  grp_chat.Participants.delete(data.Member);
+  await grp_chat.save()
+
+  // Informing the admin
+
+  io.to(socketId).emit("kickout-successful",{
+    GroupId : data.GroupId
+  })
+
+  // Informing the user if he was kicked out of the group
+
+  const user = await activeUsers.findOne({user: data.Member})
+
+  if(user!=null){
+  io.to(user.socket).emit("kicked-out",{
+    GroupId : data.GroupId,
+    GroupName : grp_chat.Name
+  })
+
+  // Informing other people if they were active at the moment
+  for (const [key, value] of grp_chat.Participants) {
+    // Sending him real time message if a user is online
+
+    const receiver = await activeUsers.findOne({ user: key });
+
+    if (receiver && key !=userId && key!=user)  {
+      // Return success status
+
+      io.to(receiver.socket).emit("someone-kicked-out", {
+        GroupId: grp_chat._id,
+      });
+    }
+  }
+
+}
+}

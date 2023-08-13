@@ -66,7 +66,7 @@ var Members = []; // This is
 function search_user(id) {
   return () => {
     searchId = id;
-    Socket.emit("check-chat", { Receiver: id, Type: "Search" });
+    Socket.emit("check-chat", { Receiver: id });
   };
 }
 
@@ -236,21 +236,28 @@ function remove_user(id, index) {
   };
 }
 
-const Socket = io("http://localhost:5000");
+// Event Listener to make someone admin
+
+function make_admin(id) {
+  return () => {
+    Socket.emit("change-admin", { GroupId: activeId, Member: id });
+  };
+}
+
+// Event Listener to kickout someone of group
+
+function remove_member(id) {
+  return () => {
+    Socket.emit("kickout", {
+      GroupId: activeId,
+      Member: id,
+    });
+  };
+}
+
+const Socket = io("http://localhost:3000");
 
 // Helper functions by which we send requests to the server
-
-// Helper function to fetch user details ✅
-
-function fetch_user_details() {
-  Socket.emit("fetch-user-details", {});
-}
-
-// Helper function to fetch personal chat ✅
-
-function fetch_personal_chat(ChatId) {
-  Socket.emit("fetch-personal-chat", { ChatId });
-}
 
 // Helper function  add  a new member to the grp(only by admin)✅
 
@@ -258,21 +265,9 @@ function add_member(GroupId, Member) {
   Socket.emit("add-member", { GroupId, Member });
 }
 
-// Helper function to change the admin for the grp(admin only)
-
-function change_admin(GroupId, Member) {
-  Socket.emit("change-admin", { GroupId, Member });
-}
-
-// Helper function to fetch group chat
-
-function fetch_group_chat(GroupId) {
-  Socket.emit("fetch-group-chat", { GroupId });
-}
-
 // Functions through which we listen to response from the server
 
-// Function to display self chat on web page load and setting active id as the self chatId
+// Function to display self chat on web page load and setting active id as the self chatId✅
 
 Socket.on("user-id", (data) => {
   //  Setting self chat as the active chat and setting username
@@ -305,13 +300,6 @@ Socket.on("user-id", (data) => {
   element.addEventListener("click", chat_opener("Self", `${data.userId}`));
 });
 
-// Receiving user  details  of the logged user ✅
-
-Socket.on("user-details", (data) => {
-  // Fetch Details like user name, email and Id as of now(will add photo aftyerwords)
-  console.log(data.Name, data.Email, data.Id);
-});
-
 // Searched user functionality ✅
 
 Socket.on("searched-user", (data) => {
@@ -326,16 +314,15 @@ Socket.on("searched-user", (data) => {
   for (let i = 0; i < user_list.length; i++) {
     if (user_list[i]._id != UserId) {
       document.getElementById("search-user-list").innerHTML += `
-    <li class="c-users__person" id="${user_list[i]._id}">${user_list[i].Name}</li>
+    <li class="c-users__person" id="search${user_list[i]._id}">${user_list[i].Name}</li>
     `;
     }
   }
-
   // Add Event listener for each user
 
   for (let i = 0; i < user_list.length; i++) {
     if (user_list[i]._id != UserId && user_list.includes(user_list[i])) {
-      let element = document.getElementById(`${user_list[i]._id}`);
+      let element = document.getElementById(`search${user_list[i]._id}`);
       element.addEventListener("click", search_user(user_list[i]._id));
     }
   }
@@ -568,7 +555,6 @@ Socket.on("read-personal-msg-ack", (data) => {
 // Fetching personal chat ✅
 
 Socket.on("personal-chat", (data) => {
-
   // Displaying personal chat data
 
   const chatWindow = document.getElementById("chats");
@@ -629,8 +615,6 @@ Socket.on("personal-chat", (data) => {
 // Self Chat Listening ✅
 
 Socket.on("self-chat", (data) => {
-
-
   // Removing the loader if there was any
 
   const chatWindow = document.getElementById("chats");
@@ -825,12 +809,6 @@ Socket.on("add-member-success", (data) => {
   console.log(data);
 });
 
-// Receiving msg when this user is added in a grp ✅
-
-Socket.on("new-grp-added", (data) => {
-  console.log(data);
-});
-
 // Receiving ack when grp chat deletion succeed(is deleted by user)
 
 Socket.on("delete-group-chat-creator", (data) => {
@@ -849,9 +827,11 @@ Socket.on("delete-group-chat-creator", (data) => {
 
   //Display Popup Notification that group has been left successfully
 
-  createNotification("Group Deleted Successfully", "success_notification", 1000);
-  
-
+  createNotification(
+    "Group Deleted Successfully",
+    "success_notification",
+    1000
+  );
 });
 
 // Receving acknowledgment if user fails to leave the grp(when he is the admin of the grp)✅
@@ -889,61 +869,174 @@ Socket.on("group-left-success", (data) => {
 // Receving ack when someone in the grp left the chat ✅
 
 Socket.on("user-left-grp", (data) => {
-  console.log(data);
+  // Do things only if the user is in that chat,else dont do anything
+  if (activeId == data.GroupId) {
+    createNotification(
+      "Somebody Just Left The Group",
+      "success_notification",
+      2000
+    );
+    Socket.emit("fetch-group-chat", { GroupId: data.GroupId });
+  }
 });
 
-// Receving ack when admin change fails
+// Receving ack when admin change succeeds(user himself)
 
-Socket.on("change-admin-fail", (data) => {
-  console.log(data);
+Socket.on("change-admin-success-creator", (data) => {
+  //  Displaying a notification indicating that user change is succesfull
+  createNotification(
+    "Admin Changed Successfully",
+    "success_notification",
+    2000
+  );
+
+  // Again Fetching the group chat
+
+  Socket.emit("fetch-group-chat", { GroupId: data.GroupId });
 });
 
-// Receving ack when admin change succeeds
+// Recing ack when admin change(other person)
 
-Socket.on("change-admin-success", (data) => {
-  console.log(data);
+Socket.on("change-admin-success-receiver", (data) => {
+  // Performing operations only if that chat was active
+  if (activeId == data.GroupId) {
+    createNotification(
+      "Admin of this group was changed",
+      "success_notification",
+      2000
+    );
+    Socket.emit("fetch-group-chat", { GroupId: data.GroupId });
+  }
 });
 
-// Function to fetch group chat
+// Function to handle when admin kickouts a user
+Socket.on("kickout-successful", (data) => {
+  // Displaying notification regarding a member being KicedOut
+
+  createNotification(
+    "User Kicked out Successfully",
+    "success_notification",
+    1000
+  );
+  Socket.emit("fetch-group-chat", { GroupId: data.GroupId });
+});
+
+// Function to handle when this user was kicked from a group
+
+Socket.on("kicked-out", (data) => {
+  createNotification(
+    `You were kicked out of ${data.GroupName}`,
+    "success_notification",
+    1000
+  );
+
+  // Removing from the group chat list
+  document
+    .getElementById("group-chat-list")
+    .removeChild(document.getElementById(data.GroupId));
+
+  // Handling the thing like if that chat was active at that moment
+  if (activeId == data.GroupId) {
+    activeId = UserId;
+    activeType = "Self";
+
+    Socket.emit("fetch-self-chat", {});
+  }
+});
+
+// Function to handle when someone else was kicked out of the group
+
+Socket.on("someone-kicked-out",(data)=>{
+
+  if(activeId == data.GroupId){
+  createNotification(
+    `Someone was kicked out of ${data.GroupName}`,
+    "success_notification",
+    1000
+  );
+  Socket.emit("fetch-group-chat", { GroupId: data.GroupId });
+  }
+})
+
+// Function to fetch group chat(most difficult part)
 
 Socket.on("group-chat", (data) => {
-
-  // Displaying Group chat data
-
   // Changing Things on right side (in chat info)
 
   document.getElementById(
     "chat-title-info"
   ).innerHTML = `<i class="fas fa-hashtag" ></i> Group Info`;
-
   document.getElementById("info").innerHTML = data.Description;
   document.getElementById("member-list").innerHTML = "";
 
-  for (const key in data.Participants) {
-    document.getElementById(
-      "member-list"
-    ).innerHTML += `<li class='c-users__person'>${key}${
-      data.Participants[key] ? '<span class="admin">Admin</span>' : `<i class="fa-solid fa-ellipsis-vertical dots" style="color: rgb(195, 189, 189);"></i>`
-    }</li>`;
-  }
-  // Adding delete group button is user is the admin else giving only leave button
+  // Handling 2 cases , like when user is admin or when he is the normal user
 
   if (UserId == data.Admin) {
+    // Displaying Member list with a admin in front of admin and and +,-, in front of everyone else
+
+    for (const key in data.Participants) {
+      document.getElementById("member-list").innerHTML += `
+    <li class='c-users__person'>${data.Participants[key]}${
+        key == data.Admin
+          ? '<span class="admin">Admin</span>'
+          : `<i id="make_admin${key}"class="fa-solid fa-circle-plus plus" style="color: #EA4C89" title="admin"></i><i id = "remove${key}" class="fa-solid fa-circle-minus minus" style="color: rgb(219, 54, 54);"></i>
+    `
+      }</li>`;
+    }
+
+    // Adding Delete Group and Leave grp button
+
     document.getElementById(
       "member-list"
     ).innerHTML += ` <div style="text-align:right"><button class="fill" id="leave" >Leave </button><button class="fill" id="delete" style="margin-left:15px" >Delete</button></div>`;
+
+    // Adding event listener to leave btn
+
+    document.getElementById("leave").addEventListener("click", () => {
+      // Tell the server that user wants to leave the group
+      Socket.emit("leave-grp", { GroupId: activeId });
+      // Handle its acknowledgmen on the other side of using socket.on
+    });
+
+    // Adding event listner to delete the group
+    document.getElementById("delete").addEventListener("click", () => {
+      Socket.emit("delete-grp", { GroupId: activeId });
+    });
+
+    // Adding event listener to the add + & - button
+
+    for (const key in data.Participants) {
+      if (key in data.Participants && key != data.Admin) {
+        let element1 = document.getElementById(`make_admin${key}`);
+        element1.addEventListener("click", make_admin(key));
+        let element2 = document.getElementById(`remove${key}`);
+        element2.addEventListener("click", remove_member(key));
+      }
+    }
   } else {
+    // Displaying List with admin people only
+
+    for (const key in data.Participants) {
+      document.getElementById("member-list").innerHTML += `
+      <li class='c-users__person'>${data.Participants[key]}${
+        key == data.Admin ? '<span class="admin">Admin</span>' : ``
+      }</li>`;
+    }
+
+    // Adding only leave button as normal user cannot delete the grp
+
     document.getElementById(
       "member-list"
     ).innerHTML += ` <div style="text-align:right"><button class="fill" id="leave" >Leave </button></div>`;
+
+    // Adding event listener to leave btn
+
+    document.getElementById("leave").addEventListener("click", () => {
+      // Tell the server that user wants to leave the group
+      Socket.emit("leave-grp", { GroupId: activeId });
+      // Handle its acknowledgmen on the other side of using socket.on
+    });
   }
-
-  const chatWindow = document.getElementById("chats");
-  // const loaderElements = chatWindow.querySelectorAll(".load-3");
-
-  // loaderElements.forEach((loaderElement) => {
-  //   chatWindow.removeChild(loaderElement);
-  // });
 
   // Fetch Messages over here
   document.getElementById(
@@ -971,34 +1064,20 @@ Socket.on("group-chat", (data) => {
   }
 
   document.getElementById("chats").innerHTML = x;
-
-  // Adding event listener to leave btn
-
-  document.getElementById("leave").addEventListener("click", () => {
-    // Tell the server that user wants to leave the group
-    Socket.emit("leave-grp", { GroupId: activeId });
-    // Handle its acknowledgmen on the other side of using socket.on
-  });
-
-  // Adding event listner to delete the group if user is the admin]
-
-  if(UserId == data.Admin){
-    document.getElementById("delete").addEventListener("click",()=>{
-      Socket.emit("delete-grp", { GroupId: activeId });
-    })
-  }
 });
 
-// Function to invoke when user search for participant to add in grp
+// Function to invoke when user search for participant to add in grp(while creating group)
 
 Socket.on("added-user-match", (data) => {
   // Making a new user list to add
 
   document.getElementById("add-user-list").innerHTML = "";
   for (let i = 0; i < data.Users.length; i++) {
-    document.getElementById("add-user-list").innerHTML += `
+    if (data.Users[i]._id != UserId) {
+      document.getElementById("add-user-list").innerHTML += `
     <li class="c-users__person" id="add${data.Users[i]._id}">${data.Users[i].Name}</li>
     `;
+    }
   }
 
   // Adding event listner to each user Id to add it to the members section
@@ -1035,6 +1114,7 @@ document.getElementById("search-icon").addEventListener("click", () => {
 document.getElementById("search-query").addEventListener("input", () => {
   Socket.emit("search-user", {
     Name: document.getElementById("search-query").value,
+    Type: "Search",
   });
 });
 

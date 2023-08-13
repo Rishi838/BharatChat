@@ -9,6 +9,12 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap"
+      rel="stylesheet"
+    />
     <title>Document</title>
   </head>
   <body>
@@ -75,7 +81,9 @@
             <!-- Personal Chat List will be displayed dynamically  -->
           </ul>
 
-          <h2 class="c-group-title">Groups <i class="fas fa-plus" id="new-group-icon"></i></h2>
+          <h2 class="c-group-title">
+            Groups <i class="fas fa-plus" id="new-group-icon"></i>
+          </h2>
           <ul class="c-users__people" id="group-chat-list">
             <!-- Group Chat List will be rendered dynamically -->
           </ul>
@@ -187,35 +195,33 @@
       </section>
       <div class="c-chat-info">
         <div id="first">
-        <header
-          class="c-chat__header c-chat__header--left"
-        >
-          <div class="c-chat__title">
-          
-            <h2 id="chat-title-info"></h2>
-            <p id="info"></p>
+          <header class="c-chat__header c-chat__header--left">
+            <div class="c-chat__title">
+              <h2 id="chat-title-info"></h2>
+              <p id="info"></p>
+              
+            </div>
+          </header>
+          <div class="c-chat__options">
+            <h2 class="c-group-title">
+              Members <i class="fas fa-chevron-down"></i>
+            </h2>
+            <ul class="c-users__people" id="member-list">
+              <!-- Chat List will be rendered through JS -->
+            </ul>
+            <h2 class="c-group-title">
+              Shared Files <i class="fas fa-chevron-right"></i>
+            </h2>
+            <h2 class="c-group-title">
+              Pinned Messages <i class="fas fa-chevron-right"></i>
+            </h2>
+            <h2 class="c-group-title">
+              Starred Files <i class="fas fa-chevron-right"></i>
+            </h2>
+            
           </div>
-        </header>
-        <div class="c-chat__options" >
-          <h2 class="c-group-title">
-            Members <i class="fas fa-chevron-down"></i>
-          </h2>
-          <ul class="c-users__people" id="member-list">
-            <!-- Chat List will be rendered through JS -->
-           
-          </ul>
-          <h2 class="c-group-title">
-            Shared Files <i class="fas fa-chevron-right"></i>
-          </h2>
-          <h2 class="c-group-title">
-            Pinned Messages <i class="fas fa-chevron-right"></i>
-          </h2>
-          <h2 class="c-group-title">
-            Starred Files <i class="fas fa-chevron-right"></i>
-          </h2>
         </div>
-      </div>
-        <div id="create-grp" style="display: none;">
+        <div id="create-grp" style="display: none">
           <div class="c-chat__title">
             <h2 style="margin: 20px 15px">Create Group</h2>
           </div>
@@ -243,14 +249,16 @@
             style="margin-left: 25px"
           ></ul>
           <div class="user-container">
-            <div class="filters" id="added-user-list">
-            </div>
+            <div class="filters" id="added-user-list"></div>
           </div>
           <div class="chat-btns">
             <button class="fill" id="cancel">Cancel</button>
             <button class="fill" id="create">Create</button>
           </div>
-          <div id="grp-error" style="text-align: center; margin-top:10px; color:red;"></div>
+          <div
+            id="grp-error"
+            style="text-align: center; margin-top: 10px; color: red"
+          ></div>
         </div>
       </div>
     </main>
@@ -259,6 +267,3 @@
     <script src="./frontend/scripts/chat.js"></script>
   </body>
 </html>
-
-
-
