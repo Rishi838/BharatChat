@@ -255,7 +255,7 @@ function remove_member(id) {
   };
 }
 
-const Socket = io("http://localhost:3000");
+const Socket = io("https://bharatchat.onrender.com");
 
 // Helper functions by which we send requests to the server
 
