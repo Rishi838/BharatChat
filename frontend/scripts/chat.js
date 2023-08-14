@@ -1103,7 +1103,7 @@ Socket.on("added-user-match", (data) => {
   // Adding event listner to each user Id to add it to the members section
 
   for (let i = 0; i < data.Users.length; i++) {
-    if (data.Users.includes(data.Users[i])) {
+    if (data.Users.includes(data.Users[i]) && data.Users[i]._id != UserId) {
       let element = document.getElementById(`add${data.Users[i]._id}`);
       element.addEventListener(
         "click",
