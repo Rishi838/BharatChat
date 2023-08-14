@@ -49,6 +49,7 @@ module.exports.SetUpSocketIo = async (io) => {
   // Establishing Connection with the server side socketIo
 
   await io.on("connection", async (socket) => {
+    console.log(socket.request.middleware_pass)
     // Checking if user passed middleware or not
     if (socket.request.middleware_pass === false) {
       io.to(socket.id).emit(
