@@ -5,14 +5,6 @@ const group_chat = require("../models/group_chat");
 const activeUsers = require("../models/active");
 const Users = require("../models/user");
 
-// Importing firebase in app
-// const admin = require('firebase-admin');
-// const serviceAccount = require('./firebase_cred.json');
-
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-//   storageBucket: 'gs://expresschat-a393f.appspot.com'
-// });
 // Helper functions
 
 async function fetchParticipantName(userId) {

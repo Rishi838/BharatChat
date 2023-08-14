@@ -265,7 +265,7 @@ function remove_member(id) {
   };
 }
 
-const Socket = io("https://expresschat-v6mg.onrender.com/");
+const Socket = io("http://localhost:3000")
 
 // Suppose that connection was not made due to non authentication
 

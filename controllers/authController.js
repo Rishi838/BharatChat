@@ -39,7 +39,7 @@ module.exports.signup = async (req, res) => {
 
     let x = Math.floor(100000 + Math.random() * 900000);
 
-    let VerificationLink = `https://bharatchat.onrender.com/verify?email=${req.body.email}&token=${x}`;
+    let VerificationLink = `https://expresschat-v6mg.onrender.com/verify?email=${req.body.email}&token=${x}`;
     var emailHTML = `
            <html>
            <body>
@@ -346,7 +346,7 @@ module.exports.resend = async (req, res) => {
 
       // Making verification email for web
 
-      let VerificationLink = `http://localhost:3000/verify?email=${req.body.email}&token=${x}`;
+      let VerificationLink = `https://expresschat-v6mg.onrender.com/verify?email=${req.body.email}&token=${x}`;
       var emailHTML = `
          <html>
          <body>
