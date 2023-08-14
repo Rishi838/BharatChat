@@ -1,5 +1,5 @@
 {
-  "name": "Expresschat",
+  "name": "bharatchat",
   "version": "1.0.0",
   "description": "Chat Application Backend",
   "main": "server.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Rishi838/ExpressChat.git"
+    "url": "git+https://github.com/Rishi838/Bharat-Chat.git"
   },
   "author": "Rishi Dhingra",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Rishi838/ExpressChat/issues"
+    "url": "https://github.com/Rishi838/Bharat-Chat/issues"
   },
-  "homepage": "https://github.com/Rishi838/ExpressChat#readme",
+  "homepage": "https://github.com/Rishi838/Bharat-Chat#readme",
   "dependencies": {
     "bcrypt": "^5.1.0",
     "cookie": "^0.5.0",
