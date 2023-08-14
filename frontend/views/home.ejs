@@ -16,14 +16,19 @@
       rel="stylesheet"
     />
     <link rel="icon" type="image/png" href="./frontend/stylesheets/Logo.png" />
+   
     <title>ExpressChat - Converse, Connect, Create Memories.</title>
   </head>
   <body>
+    <input type="file" id="fileInput" accept="image/*" style="display: none" />
     <audio id="new-msg-sound">
       <source src="./frontend/stylesheets/msg_sound.mp3" type="audio/mpeg" />
     </audio>
     <audio id="chat-sound">
-      <source src="./frontend/stylesheets/while-chatting.mp3" type="audio/mpeg" />
+      <source
+        src="./frontend/stylesheets/while-chatting.mp3"
+        type="audio/mpeg"
+      />
     </audio>
     <audio id="send-sound">
       <source src="./frontend/stylesheets/msg_send.mp3" type="audio/mpeg" />
@@ -115,7 +120,14 @@
           </ul>
         </div>
       </aside>
-      <section class="c-chat">
+      <section id="preview" style="display:none">
+        <img id="previewImage" src="" alt="File Preview" />
+        <div id="preview-btns">
+        <button class="fill" id="cancelPreview">Cancel</button>
+        <button class="fill" id="send-file" style="margin-left: 10px;">Send</button>
+      </div>
+      </section>
+      <section class="c-chat" id="chat-section" >
         <header class="c-chat__header">
           <div class="c-chat__title">
             <h1 id="chat-name">
@@ -131,7 +143,7 @@
           <!--Chats will be fetched dynamically-->
         </div>
         <div class="chat-input-wrapper" id="msg-area">
-          <button class="chat-attachment-btn">
+          <button class="chat-attachment-btn" id="attachButton">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"

@@ -63,6 +63,13 @@ var Members = []; // This is to know which members to add in grp
 var sound = document.getElementById("new-msg-sound");
 var chat = document.getElementById("chat-sound");
 var send = document.getElementById("send-sound");
+const attachButton = document.getElementById('attachButton');
+const fileInput = document.getElementById('fileInput');
+const preview = document.getElementById('preview');
+const previewImage = document.getElementById('previewImage');
+const cancelPreview = document.getElementById('cancelPreview');
+const sendBtn = document.getElementById("send-file")
+
 
 // Event Listner when a user profile is clicked after searching
 
@@ -258,7 +265,7 @@ function remove_member(id) {
   };
 }
 
-const Socket = io("https://bharatchat.onrender.com");
+const Socket = io("http://localhost:3000");
 
 // Suppose that connection was not made due to non authentication
 
@@ -522,7 +529,7 @@ Socket.on("receive-personal-message", (data) => {
 
   if (ChatId == activeId) {
     //  Displaying chat in real time and also sending server about user reading it
-    chat.play()
+    // chat.play()
     const new_msg = `
      <div class="c-chat__msg">
     <span class="c-chat__icon"></span>
@@ -1210,3 +1217,60 @@ document
       Type: "Add",
     });
   });
+
+// Allow user to select file when he clicks on the attachement btn
+attachButton.addEventListener("click",()=>{
+  fileInput.click();
+})
+
+// Display files when a new file is selected
+
+fileInput.addEventListener('change',()=>{
+  const selectedFile = fileInput.files[0];
+
+  // Preview the file
+  preview.style.display = 'block';
+  previewImage.src = URL.createObjectURL(selectedFile);
+
+//  Display the preview screen and hide the chat section
+
+  document.getElementById("preview").style.display = "flex"
+  document.getElementById("chat-section").style.display ="none"
+})
+
+// Event listener to handle thing when user clicks on cancel
+cancelPreview.addEventListener('click', () => {
+  // Hide the preview and reset the input
+  preview.style.display = 'none';
+// Change the screens
+document.getElementById("preview").style.display = "none"
+document.getElementById("chat-section").style.display ="block"
+  previewImage.src = '';
+  fileInput.value = null;
+});
+
+// Event Listener to handle sending thing to server side
+sendBtn.addEventListener('click',()=>{
+  const selectedFile = fileInput.files[0];
+
+  // Create form data object to send it to the server
+
+  const formData = new FormData();
+  formData.append('image', selectedFile);
+
+  // Emit Image to the server
+
+  Socket.emit('send-image', formData);
+
+  // Stop displaying the image
+
+  document.getElementById("preview").style.display = "none"
+  document.getElementById("chat-section").style.display ="block"
+
+  // Remove the file
+
+  fileInput.value = null;
+})
+
+
+// Displaying emoji button
