@@ -1,4 +1,7 @@
 # ExpressChat - Chat Application Backend
+<img src="https://github.com/Rishi838/ExpressChat/assets/77577908/4a0e0107-2587-439d-ab45-03dd9c34d999" width="150px" height="150px">
+
+
 
 Welcome to the ExpressChat! This project aims to provide a user-friendly and feature-rich chat platform that allows users to communicate seamlessly.Whether you're looking to catch up with friends, collaborate with colleagues, or meet new people, our chat application offers an intuitive and feature-rich environment to make your conversations truly come alive.
 
