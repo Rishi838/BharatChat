@@ -8,23 +8,19 @@ Welcome to the ExpressChat! This project aims to provide a user-friendly and fea
 ## Table of Contents
 
 1. Introduction
-2. Video Demonstration
-3. Features
-4. Technologies Used
-5. Getting Started
-6. Installation
-7. Authorisation API's
-8. Socket Io Connections
-9. Frontend Demonstration
-10. Support
+2. Features
+3. Technologies Used
+4. Getting Started
+5. Installation
+6. Authorisation API's
+7. Socket Io Connections
+8. Frontend Demonstration
+9. Support
 
 ## Introduction
 
 In a world where communication bridges distances, our Chat Application goes beyond simple text exchanges. We've crafted a space where real-time interactions, group chats, and expressive conversations come together effortlessly. Our platform isn't just about sending messages; it's about creating meaningful connections, fostering collaboration, and making every conversation memorable. The website is live and can be accessed at [ExpressChat](https://expresschat-v6mg.onrender.com).
 
-## Video Demonstration
-
-https://github.com/Rishi838/ShopNet/assets/77577908/9fe37b38-ff07-4ad0-bab1-2b9a5efcb371
 
 ## Features
 
